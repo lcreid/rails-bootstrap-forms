@@ -114,7 +114,9 @@ module BootstrapForm
 
     def check_box_with_bootstrap(name, options = {}, checked_value = "1", unchecked_value = "0", &block)
       options = options.symbolize_keys!
+      label_for = label_for_from_options(options)
       check_box_options = options.except(:label, :label_class, :help, :inline)
+      check_box_options[:class] = ["form-check-input", check_box_options[:class]].compact.join(" ")
 
       html = check_box_without_bootstrap(name, check_box_options, checked_value, unchecked_value)
       label_content = block_given? ? capture(&block) : options[:label]
@@ -134,10 +136,10 @@ module BootstrapForm
 
       if options[:inline]
         label_class = " #{label_class}" if label_class
-        label(label_name, html, class: "checkbox-inline#{disabled_class}#{label_class}")
+        label(label_name, html, label_for.merge(class: "form-check-inline#{disabled_class}#{label_class}"))
       else
-        content_tag(:div, class: "checkbox#{disabled_class}") do
-          label(label_name, html, class: label_class)
+        content_tag(:div, class: "form-check#{disabled_class}") do
+          label(label_name, html, label_for.merge(class: ["form-check-label", label_class].compact.join(" ")))
         end
       end
     end
@@ -146,6 +148,7 @@ module BootstrapForm
 
     def radio_button_with_bootstrap(name, value, *args)
       options = args.extract_options!.symbolize_keys!
+      label_for = label_for_from_options(options)
       args << options.except(:label, :label_class, :help, :inline)
 
       html = radio_button_without_bootstrap(name, value, *args) + " " + options[:label]
@@ -155,10 +158,10 @@ module BootstrapForm
 
       if options[:inline]
         label_class = " #{label_class}" if label_class
-        label(name, html, class: "radio-inline#{disabled_class}#{label_class}", value: value)
+        label(name, html, label_for.merge(class: "radio-inline#{disabled_class}#{label_class}", value: value))
       else
         content_tag(:div, class: "radio#{disabled_class}") do
-          label(name, html, value: value, class: label_class)
+          label(name, html, label_for.merge(value: value, class: label_class))
         end
       end
     end
@@ -170,7 +173,7 @@ module BootstrapForm
         options[:multiple] = true
         check_box(name, options, value, nil)
       end
-      hidden_field(args.first,{value: "", multiple: true}).concat(html)
+      hidden_field(args.first, value: "", multiple: true).concat(html)
     end
 
     bootstrap_method_alias :collection_check_boxes
@@ -221,7 +224,10 @@ module BootstrapForm
     end
 
     def fields_for_with_bootstrap(record_name, record_object = nil, fields_options = {}, &block)
-      fields_options, record_object = record_object, nil if record_object.is_a?(Hash) && record_object.extractable_options?
+      if record_object.is_a?(Hash) && record_object.extractable_options?
+        fields_options = record_object
+        record_object = nil
+      end
       fields_options[:layout] ||= options[:layout]
       fields_options[:label_col] = fields_options[:label_col].present? ? "#{fields_options[:label_col]} #{label_class}" : options[:label_col]
       fields_options[:control_col] ||= options[:control_col]
@@ -308,11 +314,13 @@ module BootstrapForm
     def form_group_builder(method, options, html_options = nil)
       options.symbolize_keys!
       html_options.symbolize_keys! if html_options
+      options[:id] = html_options[:id] if html_options && @options[:skip_default_ids]
 
       # Add control_class; allow it to be overridden by :control_class option
       css_options = html_options || options
       control_classes = css_options.delete(:control_class) { control_class }
       css_options[:class] = [control_classes, css_options[:class]].compact.join(" ")
+      css_options[:class] << " form-control-danger" if has_error?(method)
 
       options = convert_form_tag_options(method, options) if acts_like_form_tag
 
@@ -363,13 +371,15 @@ module BootstrapForm
     end
 
     def convert_form_tag_options(method, options = {})
+      unless @options[:skip_default_ids]
       options[:name] ||= method
       options[:id] ||= method
+      end
       options
     end
 
     def generate_label(id, name, options, custom_label_col, group_layout)
-      options[:for] = id if acts_like_form_tag
+      add_for_option_if_needed!(options, id)
       classes = [options[:class], label_class]
       classes << (custom_label_col || label_col) if get_group_layout(group_layout) == :horizontal
       unless options.delete(:skip_required)
@@ -385,7 +395,23 @@ module BootstrapForm
       else
         label(name, options[:text], options.except(:text))
       end
+    end
 
+    def add_for_option_if_needed!(options, id)
+      options[:for] = id if acts_like_form_tag
+      options[:for] ||= id if @options[:skip_default_ids]
+    end
+
+    def label_for_from_options(options)
+      if !@options[:skip_default_ids]
+        {}
+      elsif options.key?(:for)
+        { for: options[:for] }
+      elsif options.key?(:id)
+        { for: options[:id] }
+      else
+        { for: nil }
+      end
     end
 
     def generate_help(name, help_text)
