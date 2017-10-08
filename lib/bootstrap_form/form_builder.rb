@@ -116,7 +116,6 @@ module BootstrapForm
       options = options.symbolize_keys!
       label_for = label_for_from_options(options)
       check_box_options = options.except(:label, :label_class, :help, :inline)
-      check_box_options[:class] = ["form-check-input", check_box_options[:class]].compact.join(" ")
 
       html = check_box_without_bootstrap(name, check_box_options, checked_value, unchecked_value)
       label_content = block_given? ? capture(&block) : options[:label]
@@ -136,10 +135,10 @@ module BootstrapForm
 
       if options[:inline]
         label_class = " #{label_class}" if label_class
-        label(label_name, html, label_for.merge(class: "form-check-inline#{disabled_class}#{label_class}"))
+        label(label_name, html, label_for.merge(class: "checkbox-inline#{disabled_class}#{label_class}"))
       else
-        content_tag(:div, class: "form-check#{disabled_class}") do
-          label(label_name, html, label_for.merge(class: ["form-check-label", label_class].compact.join(" ")))
+        content_tag(:div, class: "checkbox#{disabled_class}") do
+          label(label_name, html, label_for.merge(class: label_class))
         end
       end
     end
@@ -320,7 +319,6 @@ module BootstrapForm
       css_options = html_options || options
       control_classes = css_options.delete(:control_class) { control_class }
       css_options[:class] = [control_classes, css_options[:class]].compact.join(" ")
-      css_options[:class] << " form-control-danger" if has_error?(method)
 
       options = convert_form_tag_options(method, options) if acts_like_form_tag
 
