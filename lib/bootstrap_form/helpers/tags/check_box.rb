@@ -20,9 +20,7 @@ module BootstrapForm
         def render(&block)
           @options = @options.symbolize_keys!
           check_box_options = @options.except(:label, :label_class, :error_message, :help, :inline, :custom, :hide_label, :skip_label, :wrapper_class)
-          check_box_classes = [check_box_options[:class]]
-          check_box_classes << "position-static" if @options[:skip_label] || @options[:hide_label]
-          check_box_classes << "is-invalid" if @template_object.has_error?(@method_name)
+          check_box_classes = control_classes
 
           label_classes = [@options[:label_class]]
           label_classes << hide_class if @options[:hide_label]
@@ -30,12 +28,12 @@ module BootstrapForm
           if @options[:custom]
             check_box_options[:class] = (["custom-control-input"] + check_box_classes).compact.join(" ")
             wrapper_class = ["custom-control", "custom-checkbox"]
-            wrapper_class.append("custom-control-inline") if @template_object.layout_inline?(@options[:inline])
+            wrapper_class.append("custom-control-inline") if layout_inline?
             label_class = label_classes.prepend("custom-control-label").compact.join(" ")
           else
             check_box_options[:class] = (["form-check-input"] + check_box_classes).compact.join(" ")
             wrapper_class = ["form-check"]
-            wrapper_class.append("form-check-inline") if @template_object.layout_inline?(@options[:inline])
+            wrapper_class.append("form-check-inline") if layout_inline?
             label_class = label_classes.prepend("form-check-label").compact.join(" ")
           end
 

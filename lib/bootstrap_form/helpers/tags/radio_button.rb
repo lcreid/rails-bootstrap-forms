@@ -27,12 +27,12 @@ module BootstrapForm
           if options[:custom]
             radio_options[:class] = radio_classes.prepend("custom-control-input").compact.join(" ")
             wrapper_class = ["custom-control", "custom-radio"]
-            wrapper_class.append("custom-control-inline") if layout_inline?(options[:inline])
+            wrapper_class.append("custom-control-inline") if layout_inline?
             label_class = label_classes.prepend("custom-control-label").compact.join(" ")
           else
             radio_options[:class] = radio_classes.prepend("form-check-input").compact.join(" ")
             wrapper_class = ["form-check"]
-            wrapper_class.append("form-check-inline") if layout_inline?(options[:inline])
+            wrapper_class.append("form-check-inline") if layout_inline?
             wrapper_class.append("disabled") if options[:disabled]
             label_class = label_classes.prepend("form-check-label").compact.join(" ")
           end

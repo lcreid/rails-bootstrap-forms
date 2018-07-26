@@ -13,8 +13,8 @@ module BootstrapForm
           end
         end
 
-        def layout_inline?(option)
-          @template_object.layout_inline?(option)
+        def layout_inline?
+          @template_object.layout_inline?(@options[:inline])
         end
 
         def wrapper_div(wrapper_classes)
