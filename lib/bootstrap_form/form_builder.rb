@@ -133,7 +133,7 @@ module BootstrapForm
     bootstrap_method_alias :check_box
 
     def radio_button_with_bootstrap(name, value, *args)
-      Helpers::Tags::RadioButton.new(@object_name, name, self, value, *args).render(name, value, *args)
+      Helpers::Tags::RadioButton.new(@object_name, name, self, value, *args).render
     end
 
     bootstrap_method_alias :radio_button
