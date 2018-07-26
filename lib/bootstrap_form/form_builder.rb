@@ -1,5 +1,6 @@
 require_relative 'aliasing'
 require_relative 'helpers/bootstrap'
+require_relative "helpers/tags/check_box"
 
 module BootstrapForm
   class FormBuilder < ActionView::Helpers::FormBuilder
@@ -125,54 +126,7 @@ module BootstrapForm
     bootstrap_method_alias :time_zone_select
 
     def check_box_with_bootstrap(name, options = {}, checked_value = "1", unchecked_value = "0", &block)
-      options = options.symbolize_keys!
-      check_box_options = options.except(:label, :label_class, :error_message, :help, :inline, :custom, :hide_label, :skip_label, :wrapper_class)
-      check_box_classes = [check_box_options[:class]]
-      check_box_classes << "position-static" if options[:skip_label] || options[:hide_label]
-      check_box_classes << "is-invalid" if has_error?(name)
-
-      label_classes = [options[:label_class]]
-      label_classes << hide_class if options[:hide_label]
-
-      if options[:custom]
-        check_box_options[:class] = (["custom-control-input"] + check_box_classes).compact.join(' ')
-        wrapper_class = ["custom-control", "custom-checkbox"]
-        wrapper_class.append("custom-control-inline") if layout_inline?(options[:inline])
-        label_class = label_classes.prepend("custom-control-label").compact.join(" ")
-      else
-        check_box_options[:class] = (["form-check-input"] + check_box_classes).compact.join(' ')
-        wrapper_class = ["form-check"]
-        wrapper_class.append("form-check-inline") if layout_inline?(options[:inline])
-        label_class = label_classes.prepend("form-check-label").compact.join(" ")
-      end
-
-      checkbox_html = check_box_without_bootstrap(name, check_box_options, checked_value, unchecked_value)
-      label_content = block_given? ? capture(&block) : options[:label]
-      label_description = label_content || (object && object.class.human_attribute_name(name)) || name.to_s.humanize
-
-      label_name = name
-      # label's `for` attribute needs to match checkbox tag's id,
-      # IE sanitized value, IE
-      # https://github.com/rails/rails/blob/5-0-stable/actionview/lib/action_view/helpers/tags/base.rb#L123-L125
-      if options[:multiple]
-        label_name =
-          "#{name}_#{checked_value.to_s.gsub(/\s/, "_").gsub(/[^-[[:word:]]]/, "").mb_chars.downcase.to_s}"
-      end
-
-      label_options = { class: label_class }
-      label_options[:for] = options[:id] if options[:id].present?
-
-      wrapper_class.append(options[:wrapper_class]) if options[:wrapper_class]
-
-      content_tag(:div, class: wrapper_class.compact.join(" ")) do
-        html = if options[:skip_label]
-          checkbox_html
-        else
-          checkbox_html.concat(label(label_name, label_description, label_options))
-        end
-        html.concat(generate_error(name)) if options[:error_message]
-        html
-      end
+      Helpers::Tags::CheckBox.new.render(name, self, options, checked_value, unchecked_value, &block)
     end
 
     bootstrap_method_alias :check_box
@@ -297,9 +251,12 @@ module BootstrapForm
       layout_in_effect(field_layout) == :horizontal
     end
 
+    # TDOD: Make private again.
+    public
     def layout_inline?(field_layout = nil)
       layout_in_effect(field_layout) == :inline
     end
+    private
 
     def field_inline_override?(field_layout = nil)
       field_layout == :inline && layout != :inline
@@ -329,10 +286,6 @@ module BootstrapForm
       "col-sm-10"
     end
 
-    def hide_class
-      "sr-only" # still accessible for screen readers
-    end
-
     def control_class
       "form-control"
     end
@@ -345,9 +298,12 @@ module BootstrapForm
       "rails-bootstrap-forms-#{method.gsub(/_/, "-")}"
     end
 
+    # TODO: Make this private again.
+    public
     def has_error?(name)
       object.respond_to?(:errors) && !(name.nil? || object.errors[name].empty?)
     end
+    private
 
     def required_attribute?(obj, attribute)
 
@@ -480,6 +436,8 @@ module BootstrapForm
       has_error?(name) && inline_errors
     end
 
+    # TDOD: Make private again.
+    public
     def generate_error(name)
       if has_inline_error?(name)
         help_text = get_error_messages(name)
@@ -489,6 +447,7 @@ module BootstrapForm
         content_tag(help_tag, help_text, class: help_klass)
       end
     end
+    private
 
     def generate_help(name, help_text)
       return if help_text == false || has_inline_error?(name)

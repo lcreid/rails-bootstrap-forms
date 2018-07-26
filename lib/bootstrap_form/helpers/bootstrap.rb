@@ -54,6 +54,10 @@ module BootstrapForm
           end
         end
       end
+  
+      def hide_class
+        "sr-only" # still accessible for screen readers
+      end
 
       def static_control(*args)
         options = args.extract_options!
