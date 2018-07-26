@@ -126,7 +126,7 @@ module BootstrapForm
     bootstrap_method_alias :time_zone_select
 
     def check_box_with_bootstrap(name, options = {}, checked_value = "1", unchecked_value = "0", &block)
-      Helpers::Tags::CheckBox.new.render(name, self, options, checked_value, unchecked_value, &block)
+      Helpers::Tags::CheckBox.new(@object_name, name, self, checked_value, unchecked_value, options).render(&block)
     end
 
     bootstrap_method_alias :check_box
