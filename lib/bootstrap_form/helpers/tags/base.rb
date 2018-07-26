@@ -4,7 +4,7 @@ module BootstrapForm
   module Helpers
     module Tags
       class Base # :nodoc:
-        def initialize(object_name, method_name, template_object, options = nil)
+        def initialize(object_name, method_name, template_object, options)
           @object_name = object_name
           @method_name = method_name
           @template_object = template_object
