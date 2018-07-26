@@ -13,6 +13,26 @@ module BootstrapForm
           end
         end
 
+        def control_options
+          @control_options ||= @options.except(:label,
+            :label_class,
+            :error_message,
+            :help,
+            :inline,
+            :custom,
+            :hide_label,
+            :skip_label,
+            :wrapper_class)
+        end
+
+        def label_classes
+          @label_classes ||= begin
+            label_classes = [@options[:label_class]]
+            label_classes << hide_class if @options[:hide_label]
+            label_classes
+          end
+        end
+
         def layout_inline?
           @template_object.layout_inline?(@options[:inline])
         end
