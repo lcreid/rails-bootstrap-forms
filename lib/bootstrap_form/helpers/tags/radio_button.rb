@@ -18,34 +18,25 @@ module BootstrapForm
         end
 
         def render
-          if @options[:custom]
-            control_options[:class] = control_classes.prepend("custom-control-input").compact.join(" ")
-            wrapper_class = ["custom-control", "custom-radio"]
-            wrapper_class.append("custom-control-inline") if layout_inline?
-            label_class = label_classes.prepend("custom-control-label").compact.join(" ")
-          else
-            control_options[:class] = control_classes.prepend("form-check-input").compact.join(" ")
-            wrapper_class = ["form-check"]
-            wrapper_class.append("form-check-inline") if layout_inline?
+          unless @options[:custom]
             wrapper_class.append("disabled") if @options[:disabled]
-            label_class = label_classes.prepend("form-check-label").compact.join(" ")
           end
           radio_html = @template_object.radio_button_without_bootstrap(@method_name, @tag_value, control_options)
 
           label_options = { value: @tag_value, class: label_class }
           label_options[:for] = @options[:id] if @options[:id].present?
 
-          wrapper_class.append(@options[:wrapper_class]) if @options[:wrapper_class]
-
-          wrapper_div(wrapper_class.compact.join(" ")) do
-            html = if @options[:skip_label]
-                     radio_html
-                   else
-                     radio_html.concat(@template_object.label(@method_name, @options[:label], label_options))
-                   end
-            html.concat(@template_object.generate_error(@method_name)) if @options[:error_message]
-            html
+          wrapper_div do
+            if @options[:skip_label]
+              radio_html
+            else
+              radio_html.concat(@template_object.label(@method_name, @options[:label], label_options))
+            end
           end
+        end
+
+        def custom_class
+          "custom-radio"
         end
       end
     end
