@@ -1,6 +1,7 @@
 require_relative 'aliasing'
 require_relative 'helpers/bootstrap'
 require_relative "helpers/tags/check_box"
+require_relative "helpers/tags/collection_helpers"
 require_relative "helpers/tags/radio_button"
 
 module BootstrapForm
@@ -147,6 +148,26 @@ module BootstrapForm
     end
 
     bootstrap_method_alias :collection_check_boxes
+
+    def new_collection_check_boxes_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {}, &block)
+      collection_check_boxes_without_bootstrap(method, collection, value_method, text_method, options, html_options) do |builder|
+        # puts "builder.instance_variable_get('@template_object').class: #{builder.instance_variable_get("@template_object").class}"
+        # puts "builder.instance_variable_get('@template_object').class.ancestors: #{builder.instance_variable_get("@template_object").class.ancestors}"
+        # puts "builder.instance_variable_get('@template_object').method(:check_box).source_location: #{builder.instance_variable_get("@template_object").method(:check_box).source_location}"
+        # puts "builder.class: #{builder.class}"
+        # puts "builder.method(:check_box).source_location: #{builder.method(:check_box).source_location}"
+        bootstrap_form_builder = Helpers::Tags::CollectionHelpers::Builder.new(builder)
+        puts bootstrap_form_builder.class
+        if block_given?
+          yield bootstrap_form_builder
+        else
+          bootstrap_form_builder.check_box
+        end
+      end
+    end
+
+    # FIXME: This will eventually get returned to `bootstrap_method_alias`
+    alias_method :new_collection_check_boxes, :new_collection_check_boxes_with_bootstrap
 
     def collection_radio_buttons_with_bootstrap(*args)
       inputs_collection(*args) do |name, value, options|
