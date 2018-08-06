@@ -24,13 +24,13 @@ module BootstrapForm
           @control_classes << "position-static" if @options[:skip_label] || @options[:hide_label]
           @control_classes << "is-invalid" if @template_object.has_error?(@method_name)
 
-          @control_options = @options.except(:label,
-            :label_class,
+          @control_options = @options.except(:custom,
             :error_message,
             :help,
-            :inline,
-            :custom,
             :hide_label,
+            :inline,
+            :label,
+            :label_class,
             :skip_label,
             :wrapper_class)
           @control_options[:class] = control_classes
