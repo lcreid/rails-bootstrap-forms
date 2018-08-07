@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require "bootstrap_form/form_builder"
+# require "bootstrap_form/form_builder"
 
 # Avoid errors due to circular dependencies of classes
 # TODO: Can I get rid of this?
-module BootstrapForm
-  class FormBuilder < ActionView::Helpers::FormBuilder
-  end
-end
+# module BootstrapForm
+#   class FormBuilder < ActionView::Helpers::FormBuilder
+#   end
+# end
 
 module BootstrapForm
   module Helpers
     module Tags
       module CollectionHelpers # :nodoc:
-        class Builder < BootstrapForm::FormBuilder # :nodoc:
+        class Builder # < BootstrapForm::FormBuilder # :nodoc:
           attr_reader :collection_builder
 
           def check_box(html_options = {})
