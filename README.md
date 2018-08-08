@@ -366,6 +366,10 @@ To display checkboxes and radios inline, pass the `inline: true` option:
 <% end %>
 ```
 
+Notice that, like Rails, the special builder's `check_box` or `radio_button` method takes only one argument: a hash of options to pass to the control. Like Rails, the special builder provides `object`, `text`, and `value` methods, that return the object from the collection, the text value returned by the `text_method` argument, and the value of the control, as returned by the `value_method` argument.
+
+Unlike Rails' `collection_check_boxes` and `collection_radio_buttons`, the `bootstrap_form` versions do *not* provide a `label` method, since the label is generated for you.
+
 Collection methods accept these options:
 * `:label`: Customize the `form_group`'s label
 * `:hide_label`: Pass true to hide the `form_group`'s label
