@@ -18,7 +18,6 @@ module BootstrapForm
         end
 
         def render(&block)
-          puts "control_options[:multiple]: #{control_options[:multiple]}"
           checkbox_html = @template_object.check_box_without_bootstrap(@method_name, control_options, @checked_value, @unchecked_value)
 
           label_content = block_given? ? @template_object.capture(&block) : @options[:label]

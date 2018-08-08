@@ -2,6 +2,7 @@ require_relative 'aliasing'
 require_relative 'helpers/bootstrap'
 require_relative "helpers/tags/check_box"
 require_relative "helpers/tags/collection_helpers"
+require_relative "helpers/tags/collection_check_boxes"
 require_relative "helpers/tags/radio_button"
 
 module BootstrapForm
@@ -140,9 +141,9 @@ module BootstrapForm
     bootstrap_method_alias :radio_button
 
     def collection_check_boxes_with_bootstrap(*args)
-      html = inputs_collection(*args) do |builder, name, value, options|
-        options[:multiple] = true
-        check_box(name, options, value, nil)
+      html = inputs_collection(Helpers::Tags::CollectionCheckBoxes::CheckBoxBuilder, *args) do |builder, name, value, options|
+        builder.options[:multiple] = true
+        check_box(builder.method, builder.options, builder.value, nil)
       end
       hidden_field(args.first,{value: "", multiple: true}).concat(html)
     end
@@ -171,12 +172,12 @@ module BootstrapForm
       #     end
       #   end
       # end
-      html = inputs_collection(method, collection, value_method, text_method, options) do |builder, name, value, options|
-        options[:multiple] = true
+      html = inputs_collection(Helpers::Tags::CollectionCheckBoxes::CheckBoxBuilder, method, collection, value_method, text_method, options) do |builder|
+        builder.options[:multiple] = true
         if block_given?
-          yield self, name, options, value
+          yield builder, builder.method, builder.options, builder.value
         else
-          check_box(name, options, value, nil)
+          check_box(builder.method, builder.options, builder.value, nil)
         end
       end
       hidden_field(method, value: "", multiple: true).concat(html)
@@ -186,7 +187,7 @@ module BootstrapForm
     alias_method :new_collection_check_boxes, :new_collection_check_boxes_with_bootstrap
 
     def collection_radio_buttons_with_bootstrap(*args)
-      inputs_collection(*args) do |builder, name, value, options|
+      inputs_collection(nil, *args) do |builder, name, value, options|
         radio_button(name, value, options)
       end
     end
@@ -465,7 +466,7 @@ module BootstrapForm
       object.errors[name].join(", ")
     end
 
-    def inputs_collection(name, collection, value, text, options = {}, &block)
+    def inputs_collection(builder_class, name, collection, value, text, options = {}, &block)
       options[:inline] ||= layout_inline?(options[:layout])
       form_group_builder(name, options) do
         inputs = ""
@@ -482,7 +483,8 @@ module BootstrapForm
           end
 
           input_options.delete(:class)
-          inputs << block.call(nil, name, input_value, input_options.merge(error_message: i == collection.size - 1))
+          builder = builder_class.new(self, name, input_value, input_options.merge(error_message: i == collection.size - 1)) if builder_class
+          inputs << block.call(builder, name, input_value, input_options.merge(error_message: i == collection.size - 1))
         end
 
         inputs.html_safe

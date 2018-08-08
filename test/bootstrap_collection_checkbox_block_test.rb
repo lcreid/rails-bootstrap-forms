@@ -26,7 +26,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
   end
 
   test "collection_check_boxes renders the form_group correctly with block" do
-    collection = [Address.new(id: 1, street: "Foobar")]
+    collection = [Address.new(id: 1, street: "Foobar"), Address.new(id: 2, street: "2 Ave")]
     expected = <<-HTML.strip_heredoc
       <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
@@ -35,14 +35,18 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
           <input class="form-check-input" id="user_misc_1" name="user[misc][]" type="checkbox" value="1" />
           <label class="form-check-label" for="user_misc_1">Foobar</label>
         </div>
+        <div class="form-check custom-class">
+          <input class="form-check-input" id="user_misc_2" name="user[misc][]" type="checkbox" value="2" />
+          <label class="form-check-label" for="user_misc_2">2 Ave</label>
+        </div>
         <small class="form-text text-muted">With a help!</small>
       </div>
     HTML
 
     actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, label: "This is a checkbox collection", help: "With a help!") do |builder, name, options, value|
-      puts "options[:multiple]: #{options[:multiple]}"
+      # puts "options[:multiple]: #{options[:multiple]}"
       # FIXME: This is fake it until I make it. Should only use the builder.
-      builder.check_box(name, options.merge(wrapper_class: "custom-class"), value)
+      builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
   end
