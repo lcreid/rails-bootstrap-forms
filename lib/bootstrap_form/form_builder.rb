@@ -177,7 +177,7 @@ module BootstrapForm
         if block_given?
           yield builder, builder.method, builder.options, builder.value
         else
-          check_box(builder.method, builder.options, builder.value, nil)
+          builder.check_box(html_options)
         end
       end
       hidden_field(method, value: "", multiple: true).concat(html)

@@ -13,7 +13,7 @@ module BootstrapForm
           end
 
           def check_box(html_options = {})
-            @bootstrap_builder.check_box(@method, @options.merge(html_options), @value)
+            @bootstrap_builder.check_box(@method, @options.merge(html_options), @value, nil)
           end
         end
       end
