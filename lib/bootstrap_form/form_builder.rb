@@ -140,7 +140,7 @@ module BootstrapForm
     bootstrap_method_alias :radio_button
 
     def collection_check_boxes_with_bootstrap(*args)
-      html = inputs_collection(*args) do |name, value, options|
+      html = inputs_collection(*args) do |builder, name, value, options|
         options[:multiple] = true
         check_box(name, options, value, nil)
       end
@@ -150,34 +150,43 @@ module BootstrapForm
     bootstrap_method_alias :collection_check_boxes
 
     def new_collection_check_boxes_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {})
-      form_group_builder_keys = %i[class control_class control_col help hide_label icon
-                                   id label label_as_placeholder label_class label_col
-                                   layout skip_label skip_required wrapper wrapper_class]
-      form_group_builder_options = options.slice(*form_group_builder_keys)
-      html_options = html_options.merge(options.except(form_group_builder_keys))
-      form_group_builder(method, form_group_builder_options, html_options) do
-        collection_check_boxes_without_bootstrap(method, collection, value_method, text_method, options, html_options) do |builder|
-          # puts "builder.instance_variable_get('@template_object').class: #{builder.instance_variable_get("@template_object").class}"
-          # puts "builder.instance_variable_get('@template_object').class.ancestors: #{builder.instance_variable_get("@template_object").class.ancestors}"
-          # puts "builder.instance_variable_get('@template_object').method(:check_box).source_location: #{builder.instance_variable_get("@template_object").method(:check_box).source_location}"
-          # puts "builder.class: #{builder.class}"
-          # puts "builder.method(:check_box).source_location: #{builder.method(:check_box).source_location}"
-          bootstrap_form_builder = Helpers::Tags::CollectionHelpers::Builder.new(builder)
-          # puts bootstrap_form_builder.class
-          if block_given?
-            yield bootstrap_form_builder
-          else
-            bootstrap_form_builder.check_box
-          end
+      # form_group_builder_keys = %i[class control_class control_col help hide_label icon
+      #                              id label label_as_placeholder label_class label_col
+      #                              layout skip_label skip_required wrapper wrapper_class]
+      # form_group_builder_options = options.slice(*form_group_builder_keys)
+      # html_options = html_options.merge(options.except(form_group_builder_keys))
+      # form_group_builder(method, form_group_builder_options, html_options) do
+      #   collection_check_boxes_without_bootstrap(method, collection, value_method, text_method, options, html_options) do |builder|
+      #     # puts "builder.instance_variable_get('@template_object').class: #{builder.instance_variable_get("@template_object").class}"
+      #     # puts "builder.instance_variable_get('@template_object').class.ancestors: #{builder.instance_variable_get("@template_object").class.ancestors}"
+      #     # puts "builder.instance_variable_get('@template_object').method(:check_box).source_location: #{builder.instance_variable_get("@template_object").method(:check_box).source_location}"
+      #     # puts "builder.class: #{builder.class}"
+      #     # puts "builder.method(:check_box).source_location: #{builder.method(:check_box).source_location}"
+      #     bootstrap_form_builder = Helpers::Tags::CollectionHelpers::Builder.new(builder)
+      #     # puts bootstrap_form_builder.class
+      #     if block_given?
+      #       yield bootstrap_form_builder
+      #     else
+      #       bootstrap_form_builder.check_box
+      #     end
+      #   end
+      # end
+      html = inputs_collection(method, collection, value_method, text_method, options) do |builder, name, value, options|
+        options[:multiple] = true
+        if block_given?
+          yield self, name, options, value
+        else
+          check_box(name, options, value, nil)
         end
       end
+      hidden_field(method, value: "", multiple: true).concat(html)
     end
 
     # FIXME: This will eventually get returned to `bootstrap_method_alias`
     alias_method :new_collection_check_boxes, :new_collection_check_boxes_with_bootstrap
 
     def collection_radio_buttons_with_bootstrap(*args)
-      inputs_collection(*args) do |name, value, options|
+      inputs_collection(*args) do |builder, name, value, options|
         radio_button(name, value, options)
       end
     end
@@ -473,7 +482,7 @@ module BootstrapForm
           end
 
           input_options.delete(:class)
-          inputs << block.call(name, input_value, input_options.merge(error_message: i == collection.size - 1))
+          inputs << block.call(nil, name, input_value, input_options.merge(error_message: i == collection.size - 1))
         end
 
         inputs.html_safe
