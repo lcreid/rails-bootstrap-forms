@@ -21,7 +21,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, label: "This is a checkbox collection", help: "With a help!") do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, label: "This is a checkbox collection", help: "With a help!") do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -48,7 +48,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -76,7 +76,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :name) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :name) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -103,7 +103,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, inline: true) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, inline: true) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -130,11 +130,11 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, checked: 1) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, checked: 1) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, checked: collection.first) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, checked: collection.first) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -157,11 +157,11 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, checked: [1, 2]) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, checked: [1, 2]) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, :street, checked: collection) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street, checked: collection) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -181,7 +181,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
         </div>
       </div>
     HTML
-    actual = @builder.new_collection_check_boxes(:misc, collection, :street, :street) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :street, :street) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -208,7 +208,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, proc { |a| a.street.reverse }) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, proc { |a| a.street.reverse }) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -234,7 +234,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
         </div>
       </div>
     HTML
-    actual = @builder.new_collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -261,7 +261,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, :id, ->(a) { a.street.reverse }) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, :id, ->(a) { a.street.reverse }) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -288,7 +288,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -315,11 +315,11 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street, checked: "address_1") do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street, checked: "address_1") do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
-    actual = @builder.new_collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street, checked: collection.first) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, proc { |a| "address_#{a.id}" }, :street, checked: collection.first) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -346,11 +346,11 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.new_collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street, checked: %w[address_1 address_2]) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street, checked: %w[address_1 address_2]) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
-    actual = @builder.new_collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street, checked: collection) do |builder|
+    actual = @builder.collection_check_boxes(:misc, collection, ->(a) { "address_#{a.id}" }, :street, checked: collection) do |builder|
       builder.check_box(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -380,7 +380,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
     HTML
 
     actual = bootstrap_form_for(@user) do |f|
-      f.new_collection_check_boxes(:misc, collection, :id, :street) do |builder|
+      f.collection_check_boxes(:misc, collection, :id, :street) do |builder|
         builder.check_box(wrapper_class: "custom-class")
       end
     end
@@ -411,7 +411,7 @@ class BootstrapCollectionCheckboxBlockTest < ActionView::TestCase
     HTML
 
     actual = bootstrap_form_for(@user) do |f|
-      f.new_collection_check_boxes(:misc, collection, :id, :street, checked: collection) do |builder|
+      f.collection_check_boxes(:misc, collection, :id, :street, checked: collection) do |builder|
         builder.check_box(wrapper_class: "custom-class")
       end
     end

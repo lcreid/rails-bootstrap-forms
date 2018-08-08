@@ -140,17 +140,7 @@ module BootstrapForm
 
     bootstrap_method_alias :radio_button
 
-    def collection_check_boxes_with_bootstrap(*args)
-      html = inputs_collection(Helpers::Tags::CollectionCheckBoxes::CheckBoxBuilder, *args) do |builder, name, value, options|
-        builder.options[:multiple] = true
-        check_box(builder.method, builder.options, builder.value, nil)
-      end
-      hidden_field(args.first,{value: "", multiple: true}).concat(html)
-    end
-
-    bootstrap_method_alias :collection_check_boxes
-
-    def new_collection_check_boxes_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {})
+    def collection_check_boxes_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {})
       # form_group_builder_keys = %i[class control_class control_col help hide_label icon
       #                              id label label_as_placeholder label_class label_col
       #                              layout skip_label skip_required wrapper wrapper_class]
@@ -183,8 +173,7 @@ module BootstrapForm
       hidden_field(method, value: "", multiple: true).concat(html)
     end
 
-    # FIXME: This will eventually get returned to `bootstrap_method_alias`
-    alias_method :new_collection_check_boxes, :new_collection_check_boxes_with_bootstrap
+    bootstrap_method_alias :collection_check_boxes
 
     def collection_radio_buttons_with_bootstrap(*args)
       inputs_collection(nil, *args) do |builder, name, value, options|
