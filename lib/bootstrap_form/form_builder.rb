@@ -532,7 +532,7 @@ module BootstrapForm
           end
 
           input_options.delete(:class)
-          builder = builder_class.new(self, name, input_value, input_options.merge(error_message: i == collection.size - 1)) if builder_class
+          builder = builder_class.new(self, obj, name, input_value, input_options.merge(error_message: i == collection.size - 1)) if builder_class
           inputs << block.call(builder, name, input_value, input_options.merge(error_message: i == collection.size - 1))
         end
 

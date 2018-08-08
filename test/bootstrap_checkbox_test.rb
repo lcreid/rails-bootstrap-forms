@@ -754,6 +754,29 @@ class BootstrapCheckboxTest < ActionView::TestCase
     assert_equivalent_xml expected, actual
   end
 
+  test "collection_check_boxes disables one checkbox with block" do
+    collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
+    expected = <<-HTML.strip_heredoc
+      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <div class="form-group">
+        <label for="user_misc">Misc</label>
+        <div class="form-check custom-class">
+          <input class="form-check-input" id="user_misc_1" name="user[misc][]" type="checkbox" value="1" disabled="disabled" />
+          <label class="form-check-label" for="user_misc_1">Foo</label>
+        </div>
+        <div class="form-check custom-class">
+          <input class="form-check-input" id="user_misc_2" name="user[misc][]" type="checkbox" value="2" />
+          <label class="form-check-label" for="user_misc_2">Bar</label>
+        </div>
+      </div>
+    HTML
+
+    actual = @builder.collection_check_boxes(:misc, collection, :id, :street) do |builder|
+      builder.check_box(wrapper_class: "custom-class", disabled: builder.object.id == 1)
+    end
+    assert_equivalent_xml expected, actual
+  end
+
   test "collection_check_boxes renders multiple checkboxes contains unicode characters in IDs correctly with block" do
     struct = Struct.new(:id, :name)
     collection = [struct.new(1, "Foo"), struct.new("二", "Bar")]
