@@ -6,6 +6,7 @@
 
 ### New features
 
+* [#477] `collection_check_boxes` and `collection_radio_buttons` can now take a block, the their Rails equivalents.
 * [#476] Give a way to pass classes to the `div.form-check` wrapper for check boxes and radio buttons - [@lcreid](https://github.com/lcreid).
 * Your contribution here!
 

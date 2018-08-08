@@ -358,6 +358,14 @@ To display checkboxes and radios inline, pass the `inline: true` option:
 <%= f.collection_check_boxes :skills, Skill.all, :id, :name %>
 ```
 
+`collection_check_boxes` and `collection_radio_buttons` can take a block, like the Rails versions of [`collection_check_boxes`](https://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html#method-i-collection_check_boxes) and [`collection_radio_buttons`](https://api.rubyonrails.org/classes/ActionView/Helpers/FormOptionsHelper.html#method-i-collection_radio_buttons). This is most useful when you need to do something unique for each element in the list, like disable the control based on certain conditions:
+
+```erb
+<%= f.collection_check_boxes :skills, Skill.all, :id, :name do |builder| %>
+  <%= builder.check_box(disabled: current_user.has_qualifications_for(builder.object)) %>
+<% end %>
+```
+
 Collection methods accept these options:
 * `:label`: Customize the `form_group`'s label
 * `:hide_label`: Pass true to hide the `form_group`'s label
