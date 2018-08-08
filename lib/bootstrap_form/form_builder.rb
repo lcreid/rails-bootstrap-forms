@@ -3,6 +3,7 @@ require_relative 'helpers/bootstrap'
 require_relative "helpers/tags/check_box"
 require_relative "helpers/tags/collection_helpers"
 require_relative "helpers/tags/collection_check_boxes"
+require_relative "helpers/tags/collection_radio_buttons"
 require_relative "helpers/tags/radio_button"
 
 module BootstrapForm
@@ -141,31 +142,10 @@ module BootstrapForm
     bootstrap_method_alias :radio_button
 
     def collection_check_boxes_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {})
-      # form_group_builder_keys = %i[class control_class control_col help hide_label icon
-      #                              id label label_as_placeholder label_class label_col
-      #                              layout skip_label skip_required wrapper wrapper_class]
-      # form_group_builder_options = options.slice(*form_group_builder_keys)
-      # html_options = html_options.merge(options.except(form_group_builder_keys))
-      # form_group_builder(method, form_group_builder_options, html_options) do
-      #   collection_check_boxes_without_bootstrap(method, collection, value_method, text_method, options, html_options) do |builder|
-      #     # puts "builder.instance_variable_get('@template_object').class: #{builder.instance_variable_get("@template_object").class}"
-      #     # puts "builder.instance_variable_get('@template_object').class.ancestors: #{builder.instance_variable_get("@template_object").class.ancestors}"
-      #     # puts "builder.instance_variable_get('@template_object').method(:check_box).source_location: #{builder.instance_variable_get("@template_object").method(:check_box).source_location}"
-      #     # puts "builder.class: #{builder.class}"
-      #     # puts "builder.method(:check_box).source_location: #{builder.method(:check_box).source_location}"
-      #     bootstrap_form_builder = Helpers::Tags::CollectionHelpers::Builder.new(builder)
-      #     # puts bootstrap_form_builder.class
-      #     if block_given?
-      #       yield bootstrap_form_builder
-      #     else
-      #       bootstrap_form_builder.check_box
-      #     end
-      #   end
-      # end
       html = inputs_collection(Helpers::Tags::CollectionCheckBoxes::CheckBoxBuilder, method, collection, value_method, text_method, options) do |builder|
         builder.options[:multiple] = true
         if block_given?
-          yield builder, builder.method, builder.options, builder.value
+          yield builder
         else
           builder.check_box(html_options)
         end
@@ -175,9 +155,13 @@ module BootstrapForm
 
     bootstrap_method_alias :collection_check_boxes
 
-    def collection_radio_buttons_with_bootstrap(*args)
-      inputs_collection(nil, *args) do |builder, name, value, options|
-        radio_button(name, value, options)
+    def collection_radio_buttons_with_bootstrap(method, collection, value_method, text_method, options = {}, html_options = {}, &block)
+      inputs_collection(Helpers::Tags::CollectionRadioButtons::RadioButtonBuilder, method, collection, value_method, text_method, options) do |builder|
+        if block_given?
+          yield builder
+        else
+          builder.radio_button(html_options)
+        end
       end
     end
 

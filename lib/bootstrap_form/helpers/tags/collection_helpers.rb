@@ -13,18 +13,13 @@ module BootstrapForm
   module Helpers
     module Tags
       module CollectionHelpers # :nodoc:
-        class Builder # < BootstrapForm::FormBuilder # :nodoc:
-          attr_reader :collection_builder
+        attr_reader :method, :options, :value
 
-          def check_box(html_options = {})
-            collection_builder.check_box(html_options)
-          end
-
-          def initialize(collection_builder)
-            @collection_builder = collection_builder
-          end
-
-          delegate :label, :object, :text, :value, to: :collection_builder
+        def initialize(bootstrap_builder, name, value, options)
+          @bootstrap_builder = bootstrap_builder
+          @method = name
+          @options = options
+          @value = value
         end
       end
     end
