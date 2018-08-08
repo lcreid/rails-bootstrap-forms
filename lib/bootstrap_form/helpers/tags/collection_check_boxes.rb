@@ -8,7 +8,7 @@ module BootstrapForm
           include CollectionHelpers
 
           def check_box(html_options = {})
-            @bootstrap_builder.check_box(@method, @options.merge(html_options), @value, nil)
+            @bootstrap_builder.check_box(@text, @options.merge(html_options), @value, nil)
           end
         end
       end

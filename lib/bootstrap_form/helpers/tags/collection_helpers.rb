@@ -4,13 +4,13 @@ module BootstrapForm
   module Helpers
     module Tags
       module CollectionHelpers # :nodoc:
-        attr_reader :method, :object, :options, :value
+        attr_reader :object, :options, :text, :value
 
-        def initialize(bootstrap_builder, object, name, value, options)
+        def initialize(bootstrap_builder, object, text, value, options)
           @bootstrap_builder = bootstrap_builder
-          @method = name
           @object = object
           @options = options
+          @text = text
           @value = value
         end
       end

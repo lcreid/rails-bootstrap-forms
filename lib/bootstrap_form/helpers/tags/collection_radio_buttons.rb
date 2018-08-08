@@ -6,7 +6,7 @@ module BootstrapForm
           include CollectionHelpers
 
           def radio_button(html_options = {})
-            @bootstrap_builder.radio_button(@method, @value, @options.merge(html_options))
+            @bootstrap_builder.radio_button(@text, @value, @options.merge(html_options))
           end
         end
       end
