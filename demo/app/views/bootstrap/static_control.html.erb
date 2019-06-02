@@ -1,0 +1,8 @@
+<%= bootstrap_form_with(model: [:admin, @user]) do |form| %>
+  <%= form.alert_message "Favor corrigir os erros abaixo." %>
+  <%# ===== Line where the issue happens %>
+  <%= form.static_control nil, label: 'Cliente', value: "nil" %>
+  <%= form.text_field :preferences %>
+
+  <%= form.primary 'Salvar e Continuar' %>
+<% end %>
