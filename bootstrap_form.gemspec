@@ -1,4 +1,4 @@
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require "bootstrap_form/version"
@@ -22,7 +22,8 @@ Gem::Specification.new do |s|
   s.bindir        = "exe"
   s.require_paths = ["lib"]
 
-  s.required_ruby_version = ">= 2.2.2"
+  s.required_ruby_version = ">= 2.3"
 
-  s.add_dependency "rails", ">= 5.0"
+  s.add_dependency("actionpack", ">= 5.0")
+  s.add_dependency("activemodel", ">= 5.0")
 end

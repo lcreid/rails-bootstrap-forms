@@ -22,7 +22,7 @@ if has_lib_changes && !has_test_changes
   warn("There are code changes, but no corresponding tests. "\
        "Please include tests if this PR introduces any modifications in "\
        "#{project_name}'s behavior.",
-       :sticky => false)
+       sticky: false)
 end
 
 # ------------------------------------------------------------------------------
@@ -30,15 +30,15 @@ end
 # ------------------------------------------------------------------------------
 if !has_changelog_changes && has_lib_changes
   markdown <<-MARKDOWN
-Here's an example of a CHANGELOG.md entry (place it immediately under the `* Your contribution here!` line):
+  Here's an example of a CHANGELOG.md entry (place it immediately under the `* Your contribution here!` line):
 
-```markdown
-* [##{pr_number}](#{pr_url}): #{github.pr_title} - [@#{github.pr_author}](https://github.com/#{github.pr_author}).
-```
-MARKDOWN
+  ```markdown
+  * [##{pr_number}](#{pr_url}): #{github.pr_title} - [@#{github.pr_author}](https://github.com/#{github.pr_author}).
+  ```
+  MARKDOWN
   warn("Please update CHANGELOG.md with a description of your changes. "\
        "If this PR is not a user-facing change (e.g. just refactoring), "\
-       "you can disregard this.", :sticky => false)
+       "you can disregard this.", sticky: false)
 end
 
 # ------------------------------------------------------------------------------
@@ -46,9 +46,9 @@ end
 # ------------------------------------------------------------------------------
 if has_changelog_changes
   if IO.read("CHANGELOG.md").scan(/^\s*[-\*] Your contribution here/i).count < 3
-    fail(
+    raise(
       "Please put the `- Your contribution here!` line back into CHANGELOG.md.",
-      :sticky => false
+      sticky: false
     )
   end
 end

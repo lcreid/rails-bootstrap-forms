@@ -1,7 +1,7 @@
 require_relative "./test_helper"
 
 class BootstrapFieldsTest < ActionView::TestCase
-  include BootstrapForm::Helper
+  include BootstrapForm::ActionViewExtensions::FormHelper
 
   setup :setup_test_fixture
 
@@ -81,7 +81,7 @@ class BootstrapFieldsTest < ActionView::TestCase
     assert_equivalent_xml expected, @builder.file_field(:misc, placeholder: "Pick a file")
   end
 
-  if ::Rails::VERSION::STRING > '5.1'
+  if ::Rails::VERSION::STRING > "5.1"
     test "file field placeholder has appropriate `for` attribute when used in form_with" do
       expected = <<-HTML.strip_heredoc
         <div class="form-group">
@@ -100,7 +100,7 @@ class BootstrapFieldsTest < ActionView::TestCase
     @user.errors.add(:misc, "error for test")
     expected = <<-HTML.strip_heredoc
     <form accept-charset="UTF-8" action="/users" class="new_user" enctype="multipart/form-data" id="new_user" method="post" role="form">
-      <input name="utf8" type="hidden" value="&#x2713;"/>
+      #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="custom-file">
@@ -115,7 +115,7 @@ class BootstrapFieldsTest < ActionView::TestCase
   end
 
   test "hidden fields are supported" do
-    expected = %{<input id="user_misc" name="user[misc]" type="hidden" />}
+    expected = '<input id="user_misc" name="user[misc]" type="hidden" />'
     assert_equivalent_xml expected, @builder.hidden_field(:misc)
   end
 
@@ -191,7 +191,7 @@ class BootstrapFieldsTest < ActionView::TestCase
     assert_equivalent_xml expected, @builder.text_area(:comments)
   end
 
-  if ::Rails::VERSION::STRING > '5.1' && ::Rails::VERSION::STRING < '5.2'
+  if ::Rails::VERSION::STRING > "5.1" && ::Rails::VERSION::STRING < "5.2"
     test "text areas are wrapped correctly form_with Rails 5.1" do
       expected = <<-HTML.strip_heredoc
       <div class="form-group">
@@ -203,7 +203,7 @@ class BootstrapFieldsTest < ActionView::TestCase
     end
   end
 
-  if ::Rails::VERSION::STRING > '5.2'
+  if ::Rails::VERSION::STRING > "5.2"
     test "text areas are wrapped correctly form_with Rails 5.2+" do
       expected = <<-HTML.strip_heredoc
       <div class="form-group">
@@ -268,6 +268,39 @@ class BootstrapFieldsTest < ActionView::TestCase
     assert_equivalent_xml expected, @builder.url_field(:misc)
   end
 
+  test "check_box fields are wrapped correctly" do
+    expected = <<-HTML.strip_heredoc
+      <div class="form-check">
+        <input name="user[misc]" type="hidden" value="0"/>
+        <input class="form-check-input" id="user_misc" name="user[misc]" type="checkbox" value="1"/>
+        <label class="form-check-label" for="user_misc">Misc</label>
+      </div>
+    HTML
+    assert_equivalent_xml expected, @builder.check_box(:misc)
+  end
+
+  test "custom check_box fields are wrapped correctly" do
+    expected = <<-HTML.strip_heredoc
+      <div class="custom-control custom-checkbox">
+        <input name="user[misc]" type="hidden" value="0"/>
+        <input class="custom-control-input" id="user_misc" name="user[misc]" type="checkbox" value="1"/>
+        <label class="custom-control-label" for="user_misc">Misc</label>
+      </div>
+    HTML
+    assert_equivalent_xml expected, @builder.check_box(:misc, custom: true)
+  end
+
+  test "switch-style check_box fields are wrapped correctly" do
+    expected = <<-HTML.strip_heredoc
+      <div class="custom-control custom-switch">
+        <input name="user[misc]" type="hidden" value="0"/>
+        <input class="custom-control-input" id="user_misc" name="user[misc]" type="checkbox" value="1"/>
+        <label class="custom-control-label" for="user_misc">Misc</label>
+      </div>
+    HTML
+    assert_equivalent_xml expected, @builder.check_box(:misc, custom: :switch)
+  end
+
   test "week fields are wrapped correctly" do
     expected = <<-HTML.strip_heredoc
       <div class="form-group">
@@ -279,7 +312,7 @@ class BootstrapFieldsTest < ActionView::TestCase
   end
 
   test "bootstrap_form_for helper works for associations" do
-    @user.address = Address.new(street: '123 Main Street')
+    @user.address = Address.new(street: "123 Main Street")
 
     output = bootstrap_form_for(@user) do |f|
       f.fields_for :address do |af|
@@ -289,7 +322,7 @@ class BootstrapFieldsTest < ActionView::TestCase
 
     expected = <<-HTML.strip_heredoc
       <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post" role="form">
-        <input name="utf8" type="hidden" value="&#x2713;" />
+        #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
         <div class="form-group">
           <label for="user_address_attributes_street">Street</label>
           <input class="form-control" id="user_address_attributes_street" name="user[address_attributes][street]" type="text" value="123 Main Street" />
@@ -310,7 +343,7 @@ class BootstrapFieldsTest < ActionView::TestCase
 
     expected = <<-HTML.strip_heredoc
       <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post" role="form">
-        <input name="utf8" type="hidden" value="&#x2713;" />
+        #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
         <div class="form-group">
           <label for="user_preferences_favorite_color">Favorite color</label>
           <input class="form-control" id="user_preferences_favorite_color" name="user[preferences][favorite_color]" type="text" value="cerulean" />
@@ -321,9 +354,9 @@ class BootstrapFieldsTest < ActionView::TestCase
   end
 
   test "fields_for correctly passes horizontal style from parent builder" do
-    @user.address = Address.new(street: '123 Main Street')
+    @user.address = Address.new(street: "123 Main Street")
 
-    output = bootstrap_form_for(@user, layout: :horizontal, label_col: 'col-sm-2', control_col: 'col-sm-10') do |f|
+    output = bootstrap_form_for(@user, layout: :horizontal, label_col: "col-sm-2", control_col: "col-sm-10") do |f|
       f.fields_for :address do |af|
         af.text_field(:street)
       end
@@ -331,7 +364,7 @@ class BootstrapFieldsTest < ActionView::TestCase
 
     expected = <<-HTML.strip_heredoc
       <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post" role="form">
-        <input name="utf8" type="hidden" value="&#x2713;" />
+        #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
         <div class="form-group row">
           <label class="col-form-label col-sm-2" for="user_address_attributes_street">Street</label>
           <div class="col-sm-10">
@@ -344,7 +377,7 @@ class BootstrapFieldsTest < ActionView::TestCase
   end
 
   test "fields_for correctly passes inline style from parent builder" do
-    @user.address = Address.new(street: '123 Main Street')
+    @user.address = Address.new(street: "123 Main Street")
 
     # NOTE: This test works with even if you use `fields_for_without_bootstrap`
     output = bootstrap_form_for(@user, layout: :inline) do |f|
@@ -355,7 +388,7 @@ class BootstrapFieldsTest < ActionView::TestCase
 
     expected = <<-HTML.strip_heredoc
       <form accept-charset="UTF-8" action="/users" class="form-inline" id="new_user" method="post" role="form">
-        <input name="utf8" type="hidden" value="&#x2713;" />
+        #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
         <div class="form-group">
           <label class="mr-sm-2" for="user_address_attributes_street">Street</label>
           <input class="form-control" id="user_address_attributes_street" name="user[address_attributes][street]" type="text" value="123 Main Street" />
@@ -365,9 +398,9 @@ class BootstrapFieldsTest < ActionView::TestCase
     assert_equivalent_xml expected, output
   end
 
-  if ::Rails::VERSION::STRING >= '5.1'
+  if ::Rails::VERSION::STRING >= "5.1"
     test "fields correctly uses options from parent builder" do
-      @user.address = Address.new(street: '123 Main Street')
+      @user.address = Address.new(street: "123 Main Street")
 
       bootstrap_form_with(model: @user,
                           control_col: "control-style",
@@ -388,7 +421,7 @@ class BootstrapFieldsTest < ActionView::TestCase
   end
 
   test "fields_for_without_bootstrap does not use options from parent builder" do
-    @user.address = Address.new(street: '123 Main Street')
+    @user.address = Address.new(street: "123 Main Street")
 
     bootstrap_form_for(@user,
                        control_col: "control-style",
