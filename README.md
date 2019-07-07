@@ -307,7 +307,7 @@ If you only want to set the class on the form group div, you can use the `wrappe
 
 ### Suppressing the Form Group Altogether
 
-You may have want to define your own form group div around a field. To do so, add the option `wrapper: false` to the input field. For example:
+You may want to define your own form group div around a field. To do so, add the option `wrapper: false` to the input field. For example:
 
 ```
 f.form_group :user do
@@ -426,7 +426,7 @@ Here's the output for a horizontal layout:
 You can also create a static control that isn't based on a model attribute:
 
 ```erb
-<%= f.static_control :field_name, label: "Custom Static Control" value: "Content Here" %>
+<%= f.static_control :field_name, label: "Custom Static Control", value: "Content Here" %>
 ```
 
 `field_name` may be any name that isn't already used in the form. Note that you may get "unpermitted parameter" messages in your log file with this approach.
@@ -434,7 +434,7 @@ You can also create a static control that isn't based on a model attribute:
 You can also create the static control the following way, if you don't need to get the value of the static control as a parameter when the form is submitted:
 
 ```erb
-<%= f.static_control label: "Custom Static Control" value: "Content Here", name: nil %>
+<%= f.static_control label: "Custom Static Control", value: "Content Here", name: nil %>
 ```
 
 (If you neither provide a field name nor `name: nil`, the Rails code that submits the form will give a JavaScript error.)
