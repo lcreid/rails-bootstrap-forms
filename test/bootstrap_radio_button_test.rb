@@ -291,7 +291,7 @@ class BootstrapRadioButtonTest < ActionView::TestCase
         </div>
         <div class="form-check">
           <input class="form-check-input" id="user_misc_2" name="user[misc]" type="radio" value="2" />
-          <label class="form-check-label" for="user_misc_2"> raB</label>
+          <label class="form-check-label" for="user_misc_2">raB</label>
         </div>
       </div>
     HTML
@@ -366,7 +366,7 @@ class BootstrapRadioButtonTest < ActionView::TestCase
         </div>
         <div class="form-check">
           <input class="form-check-input" id="user_misc_2" name="user[misc]" type="radio" value="2" />
-          <label class="form-check-label" for="user_misc_2"> raB</label>
+          <label class="form-check-label" for="user_misc_2">raB</label>
         </div>
       </div>
     HTML
@@ -566,7 +566,12 @@ class BootstrapRadioButtonTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.collection_radio_buttons(:misc, collection, :id, :street, label: "This is a radio button collection", help: "With a help!") do |builder|
+    actual = @builder.collection_radio_buttons(:misc,
+                                               collection,
+                                               :id,
+                                               :street,
+                                               label: "This is a radio button collection",
+                                               help: "With a help!") do |builder|
       builder.radio_button(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -680,7 +685,12 @@ class BootstrapRadioButtonTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.collection_radio_buttons(:misc, collection, :id, proc { |a| a.street.reverse }, label: "This is a radio button collection", help: "With a help!") do |builder|
+    actual = @builder.collection_radio_buttons(:misc,
+      collection,
+      :id,
+      proc { |a| a.street.reverse },
+      label: "This is a radio button collection",
+      help: "With a help!") do |builder|
       builder.radio_button(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -699,7 +709,12 @@ class BootstrapRadioButtonTest < ActionView::TestCase
       </div>
     HTML
 
-    actual = @builder.collection_radio_buttons(:misc, collection, proc { |a| "address_#{a.id}" }, :street, label: "This is a radio button collection", help: "With a help!") do |builder|
+    actual = @builder.collection_radio_buttons(:misc,
+      collection,
+      proc { |a| "address_#{a.id}" },
+      :street,
+      label: "This is a radio button collection",
+      help: "With a help!") do |builder|
       builder.radio_button(wrapper_class: "custom-class")
     end
     assert_equivalent_xml expected, actual
@@ -716,7 +731,7 @@ class BootstrapRadioButtonTest < ActionView::TestCase
         </div>
         <div class="form-check custom-class">
           <input class="form-check-input" id="user_misc_2" name="user[misc]" type="radio" value="2" />
-          <label class="form-check-label" for="user_misc_2"> raB</label>
+          <label class="form-check-label" for="user_misc_2">raB</label>
         </div>
       </div>
     HTML
@@ -798,7 +813,7 @@ class BootstrapRadioButtonTest < ActionView::TestCase
         </div>
         <div class="form-check custom-class">
           <input class="form-check-input" id="user_misc_2" name="user[misc]" type="radio" value="2" />
-          <label class="form-check-label" for="user_misc_2"> raB</label>
+          <label class="form-check-label" for="user_misc_2">raB</label>
         </div>
       </div>
     HTML

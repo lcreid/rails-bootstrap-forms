@@ -55,7 +55,7 @@ module BootstrapForm
           end
         end
       end
-  
+
       def static_control(*args)
         options = args.extract_options!
         name = args.first
