@@ -19,7 +19,5 @@ group :test do
 
   gem "diffy"
   gem "equivalent-xml"
-  # mocha is used by one test case in the whole suite
-  gem "mocha"
   gem "sqlite3"
 end

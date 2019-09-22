@@ -15,6 +15,5 @@ group :test do
 
   gem "diffy"
   gem "equivalent-xml"
-  gem "mocha"
   gem "sqlite3"
 end

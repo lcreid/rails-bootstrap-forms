@@ -6,7 +6,6 @@ require "equivalent-xml"
 
 require_relative "../demo/config/environment.rb"
 require "rails/test_help"
-require "mocha/minitest"
 
 Rails.backtrace_cleaner.remove_silencers!
 

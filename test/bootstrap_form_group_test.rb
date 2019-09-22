@@ -1,4 +1,5 @@
 require_relative "./test_helper"
+require "minitest/mock"
 
 class BootstrapFormGroupTest < ActionView::TestCase
   include BootstrapForm::ActionViewExtensions::FormHelper
@@ -272,10 +273,11 @@ class BootstrapFormGroupTest < ActionView::TestCase
                                       }
                                     })
 
-    builder.stubs(:warn).returns(true)
-    builder.expects(:warn).at_least_once
-
-    builder.password_field(:password)
+    deprecation = MiniTest::Mock.new
+    ActiveSupport::Deprecation.stub :warn, deprecation do
+      builder.password_field(:password)
+    end
+    deprecation.verify
   end
 
   test "help messages to ignore translation when user disables help" do
