@@ -7,20 +7,19 @@ gemspec
 gem "rails", "~> 6.0.0"
 
 group :development do
-  gem "chandler", ">= 0.7.0"
+  gem "chandler"
   gem "htmlbeautifier"
   gem "rubocop-rails", require: false
   gem "sassc-rails"
-  gem "webpacker", ">= 4.0.0.rc.3"
+  gem 'webpacker', '~> 4.0'
 end
 
 group :test do
-  # can relax version requirement for Rails 5.2.beta3+
-  gem "minitest", "~> 5.10.3"
+  gem "minitest"
 
   gem "diffy"
   gem "equivalent-xml"
+  # mocha is used by one test case in the whole suite
   gem "mocha"
   gem "sqlite3"
-  gem "timecop", "~> 0.7.1"
 end
