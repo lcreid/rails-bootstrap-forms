@@ -15,8 +15,6 @@ group :development do
 end
 
 group :test do
-  gem "minitest"
-
   gem "diffy"
   gem "equivalent-xml"
   gem "sqlite3"
