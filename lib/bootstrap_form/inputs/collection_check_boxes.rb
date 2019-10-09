@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "byebug"
+
 module BootstrapForm
   module Inputs
     module CollectionCheckBoxes
@@ -10,7 +12,7 @@ module BootstrapForm
       included do
         def collection_check_boxes_with_bootstrap(*args, &block)
           if block_given?
-            with_block(*args, block)
+            with_block(*args, &block)
           else
             without_block(*args)
           end
@@ -20,7 +22,13 @@ module BootstrapForm
 
         def with_block(*args, &block)
           collection_check_boxes_without_bootstrap(*args) do |builder|
-            block.call(builder)
+            # Ideas:
+            # Figure out how to make a class inherited from `builder`
+            # or refactor my code so that we use mostly our regular helpers,
+            # but use the underlying Rails helper from `builder` instead of `self`.
+            # Maybe the same as the first: pass in my object that has a member
+            # that's the builder, and delegates methods to the builder.
+            block.call(BootstrapForm::Helpers::Tags::CollectionHelpers::Builder.new(builder))
           end
         end
 

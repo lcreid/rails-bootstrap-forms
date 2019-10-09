@@ -725,14 +725,18 @@ class BootstrapCheckboxTest < ActionView::TestCase
   end
 
   test "collection_check_boxes renders the form_group correctly with block" do
-    collection = [Address.new(id: 1, street: "Foobar")]
+    collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
+        <input id="user_misc" name="user[misc][]" type="hidden" value="" />
         <label for="user_misc">This is a checkbox collection</label>
         <div class="form-check custom-class">
           <input class="form-check-input" id="user_misc_1" name="user[misc][]" type="checkbox" value="1" />
-          <label class="form-check-label" for="user_misc_1">Foobar</label>
+          <label class="form-check-label" for="user_misc_1">Foo</label>
+        </div>
+        <div class="form-check custom-class">
+          <input class="form-check-input" id="user_misc_2" name="user[misc][]" type="checkbox" value="2" />
+          <label class="form-check-label" for="user_misc_2">Bar</label>
         </div>
         <small class="form-text text-muted">With a help!</small>
       </div>
@@ -744,10 +748,37 @@ class BootstrapCheckboxTest < ActionView::TestCase
     assert_equivalent_xml expected, actual
   end
 
+  # test "rails collection_check_boxes renders the form_group correctly with block" do
+  #   collection = [Address.new(id: 1, street: "Foobar"), Address.new(id: 2, street: "Not Foobar Again")]
+  #   expected = <<-HTML.strip_heredoc
+  #     <div class="form-group">
+  #       <label for="user_misc">This is a checkbox collection</label>
+  #       <input id="user_misc" name="user[misc][]" type="hidden" value="" />
+  #       <div class="form-check custom-class">
+  #         <input class="form-check-input" id="user_misc_1" name="user[misc][]" type="checkbox" value="1" />
+  #         <label class="form-check-label" for="user_misc_1">Foobar</label>
+  #       </div>
+  #       <div class="form-check custom-class">
+  #         <input class="form-check-input" id="user_misc_2" name="user[misc][]" type="checkbox" value="2" />
+  #         <label class="form-check-label" for="user_misc_2">Not Foobar Again</label>
+  #       </div>
+  #       <small class="form-text text-muted">With a help!</small>
+  #     </div>
+  #   HTML
+
+  #   actual = form_for(@user) do |f|
+  #   f.collection_check_boxes(:misc, collection, :id, :street, label: "This is a checkbox collection", help: "With a help!") do |builder|
+  #     concat builder.check_box
+  #     concat builder.label
+  #   end
+  # end
+  #   assert_equivalent_xml expected, actual
+  # end
+
   test "collection_check_boxes renders multiple checkboxes correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -770,7 +801,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes disables one checkbox with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -794,7 +825,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
     struct = Struct.new(:id, :name)
     collection = [struct.new(1, "Foo"), struct.new("二", "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -817,7 +848,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders inline checkboxes correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check form-check-inline custom-class">
@@ -840,7 +871,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders with checked option correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -867,7 +898,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders with multiple checked options correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -894,7 +925,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes sanitizes values when generating label `for` with block" do
     collection = [Address.new(id: 1, street: "Foo St")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -912,7 +943,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders multiple checkboxes with labels defined by Proc :text_method correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -935,7 +966,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders multiple checkboxes with values defined by Proc :value_method correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -957,7 +988,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders multiple checkboxes with labels defined by lambda :text_method correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -980,7 +1011,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders multiple checkboxes with values defined by lambda :value_method correctly with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -1003,7 +1034,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders with checked option correctly with Proc :value_method with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -1030,7 +1061,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
   test "collection_check_boxes renders with multiple checked options correctly with lambda :value_method with block" do
     collection = [Address.new(id: 1, street: "Foo"), Address.new(id: 2, street: "Bar")]
     expected = <<-HTML.strip_heredoc
-      <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+      <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -1061,7 +1092,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
     expected = <<-HTML.strip_heredoc
     <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post" role="form">
     #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
-    <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+    <input id="user_misc" name="user[misc][]" type="hidden" value="" />
       <div class="form-group">
         <label for="user_misc">Misc</label>
         <div class="form-check custom-class">
@@ -1092,7 +1123,7 @@ class BootstrapCheckboxTest < ActionView::TestCase
     expected = <<-HTML.strip_heredoc
       <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post" role="form">
         #{'<input name="utf8" type="hidden" value="&#x2713;"/>' unless ::Rails::VERSION::STRING >= '6'}
-        <input id="user_misc" multiple="multiple" name="user[misc][]" type="hidden" value="" />
+        <input id="user_misc" name="user[misc][]" type="hidden" value="" />
         <div class="form-group">
           <label for="user_misc">Misc</label>
           <div class="form-check custom-class">
