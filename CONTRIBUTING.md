@@ -34,6 +34,8 @@ Fork the project. Optionally, create a branch you want to work on.
 - Install the required dependencies with `bundle install`
 - Run tests via: `bundle exec rake`
 
+Optional: If you like to use Docker for local development, the repository now contains a `Dockerfile` and a `docker-compose.yml` for your convenience. You can use `docker-compose run shell` to get a Bash shell, `docker-compose run test` to run all the tests, and `docker-compose run server` to start a Rails server running the demo app.
+
 ### 5. Hack away
 
 - Try to keep your changes small. Consider making several smaller pull requests if your changes are extensive.
@@ -52,7 +54,7 @@ You may find the demo application useful for development and debugging.
 ### 6. Make a pull request
 
 - If you've never made a pull request (PR) before, read this: https://help.github.com/articles/about-pull-requests/.
-- If your PR fixes an issues, be sure to put "Fixes #nnn" in the description of the PR (where `nnn` is the issue number). Github will automatically close the issue when the PR is merged.
+- If your PR fixes an issue, be sure to put "Fixes #nnn" in the description of the PR (where `nnn` is the issue number). Github will automatically close the issue when the PR is merged.
 - When the PR is submitted, check if Travis CI ran all the tests successfully, and didn't raise any issues.
 
 ### 7. Done!
@@ -65,15 +67,15 @@ merged into the master branch. Eventually the gem will be published with your ch
 This project uses [RuboCop](https://github.com/bbatsov/rubocop) to enforce standard Ruby coding
 guidelines.
 
-* Test that your contribution passes with `rake rubocop`.
-* RuboCop is also run as part of the full test suite with `bundle exec rake`.
-* Note the Travis build will fail and your PR cannot be merged if RuboCop finds offences.
+- Test that your contribution passes with `rake rubocop`.
+- RuboCop is also run as part of the full test suite with `bundle exec rake`.
+- Note the Travis build will fail and your PR cannot be merged if RuboCop finds offences.
 
 Note that most editors have plugins to run RuboCop as you type, or when you save a file. You may find it well worth your time to install and configure the RuboCop plugin for your editor. Read the [RuboCop documentation](https://rubocop.readthedocs.io/en/latest/integration_with_other_tools/).
 
 ### Supported Versions of Ruby and Rails
 
-The goal of `bootstrap_form` is to support all versions of Rails currently supported for bug fixes and security issues. We do not test against versions supported for severe security issues. We test against the minimum [version of Ruby required](https://guides.rubyonrails.org/upgrading_ruby_on_rails.html#ruby-versions) for those versions of Rails.
+The goal of `bootstrap_form` is to support all currently supported Rails versions, for bug fixes and security issues. We do not test against versions supported for severe security issues. We test against the minimum [version of Ruby required](https://guides.rubyonrails.org/upgrading_ruby_on_rails.html#ruby-versions) for those versions of Rails.
 
 The Ruby on Rails support policy is [here](https://guides.rubyonrails.org/maintenance_policy.html).
 
@@ -92,11 +94,14 @@ We are an entirely volunteer project. Sometimes it's hard for people to find the
 Thanks to all the great contributors over the years: https://github.com/bootstrap-ruby/bootstrap_form/graphs/contributors
 
 ## Troubleshooting
+
 ### Models and Database Tables
+
 `bootstrap_form` needs a few models and tables to support testing. It appears that the necessary tables were created via the `demo/db/schema.rb` file. To support `rich_text_area`, Rails 6 creates some migrations. These migrations had to be run in the existing database (not an empty one) to create a new `schema.rb` that creates the `bootstrap_form` test tables, and the tables needed by Rails 6. The `schema.rb` file was checked in to GitHub, but the migrations were not.
 
 In the future, any new Rails functionality that creates tables would likely have to be prepared the same way:
-```
+
+```bash
 cd demo
 rails db:setup # create the databases from `schema.rb`
 rails db:migrate # add the new tables and create a new `schema.rb`

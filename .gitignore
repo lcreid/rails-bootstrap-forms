@@ -21,6 +21,7 @@ demo/storage/*
 
 demo/public/assets
 .byebug_history
+.bash_history
 
 # Ignore master key for decrypting credentials and more.
 demo/config/master.key
