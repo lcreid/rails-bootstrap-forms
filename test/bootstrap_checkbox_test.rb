@@ -639,9 +639,20 @@ class BootstrapCheckboxTest < ActionView::TestCase
       <div class="form-check mb-3">
         <input #{autocomplete_attr} name="user[email]" type="hidden" value="0"/>
         <input aria-required="true" class="form-check-input" id="user_email" name="user[email]" required="required" type="checkbox" value="1"/>
-        <label class="form-check-label" for="user_email">Email</label>
+        <label class="form-check-label required" for="user_email">Email</label>
       </div>
     HTML
     assert_equivalent_html expected, @builder.check_box(:email, label: "Email")
+  end
+
+  test "override a required attribute with parameter" do
+    expected = <<~HTML
+      <div class="form-check mb-3">
+        <input #{autocomplete_attr} name="user[email]" type="hidden" value="0"/>
+        <input class="form-check-input" id="user_email" name="user[email]" type="checkbox" value="1"/>
+        <label class="form-check-label" for="user_email">Email</label>
+      </div>
+    HTML
+    assert_equivalent_html expected, @builder.check_box(:email, label: "Email", required: false)
   end
 end

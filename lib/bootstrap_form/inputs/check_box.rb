@@ -36,7 +36,7 @@ module BootstrapForm
                      else
                        name
                      end
-        label_options = { class: check_box_label_class(options) }
+        label_options = { class: check_box_label_class(options, name) }
         label_options[:for] = options[:id] if options[:id].present?
         label(label_name, check_box_description(name, options, &block), label_options)
       end
@@ -60,10 +60,10 @@ module BootstrapForm
         classes.flatten.compact
       end
 
-      def check_box_label_class(options)
+      def check_box_label_class(options, method)
         classes = ["form-check-label"]
         classes << options[:label_class]
-        classes << "required" if options[:required]
+        classes << "required" if checkbox_required(options, method)
         classes << hide_class if options[:hide_label]
         classes.flatten.compact
       end
