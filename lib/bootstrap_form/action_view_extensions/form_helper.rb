@@ -53,7 +53,9 @@ module BootstrapForm
 
       def with_bootstrap_form_field_error_proc
         original_proc = ActionView::Base.field_error_proc
-        ActionView::Base.field_error_proc = BootstrapForm.field_error_proc
+        ActionView::Base.field_error_proc = proc do |html_tag, _instance_tag|
+          html_tag
+        end
         yield
       ensure
         ActionView::Base.field_error_proc = original_proc

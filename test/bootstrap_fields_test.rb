@@ -192,7 +192,7 @@ class BootstrapFieldsTest < ActionView::TestCase
         <input min="0" max="80" class="form-range" id="user_misc" name="user[misc]" type="range" />
       </div>
     HTML
-    assert_equivalent_html expected, @builder.range_field(:misc,  min: 0, max: 80)
+    assert_equivalent_html expected, @builder.range_field(:misc, min: 0, max: 80)
   end
 
   test "search fields are wrapped correctly" do
@@ -446,11 +446,11 @@ class BootstrapFieldsTest < ActionView::TestCase
                         layout: :inline) do |f|
       f.fields :address do |af|
         af.text_field(:street)
-        assert_equal "control-style", af.control_col
-        assert_equal false, af.inline_errors
-        assert_equal "label-style", af.label_col
-        assert_equal true, af.label_errors
-        assert_equal :inline, af.layout
+        assert_equal "control-style", af.instance_variable_get(:@control_col)
+        assert_equal false, af.instance_variable_get(:@inline_errors)
+        assert_equal "label-style", af.instance_variable_get(:@label_col)
+        assert_equal true, af.instance_variable_get(:@label_errors)
+        assert_equal :inline, af.instance_variable_get(:@layout)
       end
     end
   end
@@ -466,11 +466,11 @@ class BootstrapFieldsTest < ActionView::TestCase
                        layout: :inline) do |f|
       f.fields_for_without_bootstrap :address do |af|
         af.text_field(:street)
-        assert_not_equal "control-style", af.control_col
-        assert_not_equal false, af.inline_errors
-        assert_not_equal "label-style", af.label_col
-        assert_not_equal true, af.label_errors
-        assert_not_equal :inline, af.layout
+        assert_not_equal "control-style", af.instance_variable_get(:@control_col)
+        assert_not_equal false, af.instance_variable_get(:@inline_errors)
+        assert_not_equal "label-style", af.instance_variable_get(:@label_col)
+        assert_not_equal true, af.instance_variable_get(:@label_errors)
+        assert_not_equal :inline, af.instance_variable_get(:@layout)
       end
     end
   end

@@ -11,6 +11,8 @@ require "mocha/minitest"
 Rails.backtrace_cleaner.remove_silencers!
 
 class ActionView::TestCase
+  include BootstrapForm::ActionViewExtensions::FormHelper
+
   def setup_test_fixture
     @address = Address.new(street: "Foo")
     @user = User.new(email: "steve@example.com", password: "secret", comments: "my comment")

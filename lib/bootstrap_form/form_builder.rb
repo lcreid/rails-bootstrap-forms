@@ -2,131 +2,47 @@
 
 module BootstrapForm
   class FormBuilder < ActionView::Helpers::FormBuilder
-    attr_reader :layout, :label_col, :control_col, :has_error, :inline_errors,
-                :label_errors, :acts_like_form_tag
+    class << self
+      private
 
-    include BootstrapForm::Helpers::Field
-    include BootstrapForm::Helpers::Bootstrap
-
-    include BootstrapForm::FormGroupBuilder
-    include BootstrapForm::FormGroup
-    include BootstrapForm::Components
-
-    include BootstrapForm::Inputs::Base
-    include BootstrapForm::Inputs::CheckBox
-    include BootstrapForm::Inputs::CollectionCheckBoxes
-    include BootstrapForm::Inputs::CollectionRadioButtons
-    include BootstrapForm::Inputs::CollectionSelect
-    include BootstrapForm::Inputs::ColorField
-    include BootstrapForm::Inputs::DateField
-    include BootstrapForm::Inputs::DateSelect
-    include BootstrapForm::Inputs::DatetimeField
-    include BootstrapForm::Inputs::DatetimeLocalField
-    include BootstrapForm::Inputs::DatetimeSelect
-    include BootstrapForm::Inputs::EmailField
-    include BootstrapForm::Inputs::FileField
-    include BootstrapForm::Inputs::GroupedCollectionSelect
-    include BootstrapForm::Inputs::MonthField
-    include BootstrapForm::Inputs::NumberField
-    include BootstrapForm::Inputs::PasswordField
-    include BootstrapForm::Inputs::PhoneField
-    include BootstrapForm::Inputs::RadioButton
-    include BootstrapForm::Inputs::RangeField
-    include BootstrapForm::Inputs::RichTextArea
-    include BootstrapForm::Inputs::SearchField
-    include BootstrapForm::Inputs::Select
-    include BootstrapForm::Inputs::Submit
-    include BootstrapForm::Inputs::TelephoneField
-    include BootstrapForm::Inputs::TextArea
-    include BootstrapForm::Inputs::TextField
-    include BootstrapForm::Inputs::TimeField
-    include BootstrapForm::Inputs::TimeSelect
-    include BootstrapForm::Inputs::TimeZoneSelect
-    include BootstrapForm::Inputs::UrlField
-    include BootstrapForm::Inputs::WeekField
-
-    include ActionView::Helpers::OutputSafetyHelper
-
-    delegate :content_tag, :capture, :concat, :tag, to: :@template
-
+      # Creates the methods *_without_bootstrap ~and *_with_bootstrap~.
+      #
+      # If your application did not include the rails gem for one of the dsl
+      # methods, then a name error is raised and suppressed. This can happen
+      # if your application does not include the actiontext dependency due to
+      # `rich_text_area` not being defined.
+      def bootstrap_alias(field_name)
+        alias_method :"#{field_name}_without_bootstrap", field_name
+        # alias_method field_name, :"#{field_name}_with_bootstrap"
+      rescue NameError # rubocop:disable Lint/SuppressedException
+      end
+    end
     def initialize(object_name, object, template, options)
-      warn_deprecated_layout_value(options)
-      @layout = options[:layout] || default_layout
-      @label_col = options[:label_col] || default_label_col
-      @control_col = options[:control_col] || default_control_col
-      @label_errors = options[:label_errors] || false
-      @inline_errors = options[:inline_errors].nil? ? @label_errors != true : options[:inline_errors] != false
-      @acts_like_form_tag = options[:acts_like_form_tag]
-      add_default_form_attributes_and_form_inline options
+      @label_col = options[:label_col] || "col-sm-2"
+      @control_col = options[:control_col] || "col-sm-10"
+      @label_errors = !!options[:label_errors]
+      @inline_errors = options[:inline_errors] || !@label_errors
       super
     end
 
-    def add_default_form_attributes_and_form_inline(options)
-      options[:html] ||= {}
-      options[:html].reverse_merge!(BootstrapForm.config.default_form_attributes)
+    # def color_field(method, options = {})
+    #   @template.content_tag(:div, class: "mb-3") do
+    #     options[:class] = "form-control"
+    #     label(method, class: "form-label") + "\n" + super
+    #   end
+    # end
 
-      return unless options[:layout] == :inline
-
-      options[:html][:class] =
-        safe_join(([*options[:html][:class]&.split(/\s+/)] + %w[row row-cols-auto g-3 align-items-center])
-        .compact.uniq, " ")
-    end
-
-    def fields_for_with_bootstrap(record_name, record_object=nil, fields_options={}, &block)
-      fields_options = fields_for_options(record_object, fields_options)
-      record_object = nil if record_object.is_a?(Hash) && record_object.extractable_options?
-      fields_for_without_bootstrap(record_name, record_object, fields_options, &block)
+    (field_helpers - %i[label check_box radio_button fields_for fields hidden_field file_field]).each do |selector|
+      class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+        def #{selector}(method, options = {})  # def text_field(method, options = {})
+          @template.content_tag(:div, class: "mb-3") do
+            options[:class] = "form-control"
+            label(method, class: "form-label") + "\n" + super
+          end
+        end                                    # end
+      RUBY_EVAL
     end
 
     bootstrap_alias :fields_for
-
-    # the Rails `fields` method passes its options
-    # to the builder, so there is no need to write a `bootstrap_form` helper
-    # for the `fields` method.
-
-    private
-
-    def fields_for_options(record_object, fields_options)
-      field_options = fields_options
-      field_options = record_object if record_object.is_a?(Hash) && record_object.extractable_options?
-      %i[layout control_col inline_errors label_errors].each do |option|
-        field_options[option] ||= options[option]
-      end
-      field_options[:label_col] = field_options[:label_col].present? ? (field_options[:label_col]).to_s : options[:label_col]
-      field_options
-    end
-
-    def default_layout
-      # :vertical, :horizontal or :inline
-      :vertical
-    end
-
-    def default_label_col
-      "col-sm-2"
-    end
-
-    def offset_col(label_col)
-      [*label_col].flat_map { |s| s.split(/\s+/) }.grep(/^col-/).join(" ").gsub(/\bcol-(\w+)-(\d)\b/, 'offset-\1-\2')
-    end
-
-    def default_control_col
-      "col-sm-10"
-    end
-
-    def hide_class
-      "visually-hidden" # still accessible for screen readers
-    end
-
-    def control_class
-      "form-control"
-    end
-
-    def feedback_class
-      "has-feedback"
-    end
-
-    def control_specific_class(method)
-      "rails-bootstrap-forms-#{method.to_s.tr('_', '-')}"
-    end
   end
 end
