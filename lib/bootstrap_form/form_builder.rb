@@ -43,9 +43,11 @@ module BootstrapForm
             for: options[:id],
           }.compact
 
+          classes = ["form-control"]
+          classes += ["is-invalid"] if error?(method)
           options.merge!(
             {
-              class: "form-control",
+              class: classes,
               required: required_field?(options, method),
               placeholder: options[:floating] && object.class.human_attribute_name(method),
             }.compact
@@ -58,11 +60,17 @@ module BootstrapForm
           }.compact
 
           @template.content_tag(:div, **wrapper_options) do
-            if options.delete(:floating)
+            result = if options.delete(:floating)
               super + "\n" + label(method, **label_options)
             else
               label(method, **label_options) + "\n" + super
             end
+
+            result += @template.content_tag(:div, class: "invalid-feedback") do
+              get_error_messages(method)
+            end if error?(method)
+
+            result
           end
         end
       RUBY_EVAL
@@ -119,5 +127,33 @@ module BootstrapForm
         (defined?(ActiveRecord::Validations::PresenceValidator) &&
           validator_class == ActiveRecord::Validations::PresenceValidator)
     end
+
+    def error?(name)
+      name && object.respond_to?(:errors) && (object.errors[name].any? || association_error?(name))
+    end
+
+    def association_error?(name)
+      object.class.try(:reflections)&.any? do |association_name, a|
+        next unless a.is_a?(ActiveRecord::Reflection::BelongsToReflection)
+        next unless a.foreign_key == name.to_s
+
+        object.errors[association_name].any?
+      end
+    end
+
+    # rubocop:disable Metrics/AbcSize
+    def get_error_messages(name)
+      object.class.try(:reflections)&.each do |association_name, a|
+        next unless a.is_a?(ActiveRecord::Reflection::BelongsToReflection)
+        next unless a.foreign_key == name.to_s
+
+        object.errors[association_name].each do |error|
+          object.errors.add(name, error)
+        end
+      end
+
+      object.errors[name].join(", ")
+    end
+    # rubocop:enable Metrics/AbcSize
   end
 end
