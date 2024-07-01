@@ -36,34 +36,14 @@ module BootstrapForm
     (field_helpers - %i[label check_box radio_button fields_for fields hidden_field]).each do |selector|
       class_eval <<-RUBY_EVAL, __FILE__,  __LINE__ + 1
         def #{selector}(method, options = {})  # def text_field(method, options = {})
-          label_classes = ["form-label"]
-          label_classes += ["required"] if required_field?(options, method)
-          label_options = {
-            class: label_classes,
-            for: options[:id],
-          }.compact
+          classes = ["#{selector == :range_field ? 'form-range' : 'form-control'}"]
+          options.merge!(control_options(classes, method, options))
 
-          classes = ["form-control"]
-          classes += ["is-invalid"] if error?(method)
-          options.merge!(
-            {
-              class: classes,
-              required: required_field?(options, method),
-              placeholder: options[:floating] && object.class.human_attribute_name(method),
-            }.compact
-          )
-
-          wrapper_classes = ["mb-3"]
-          wrapper_classes += ["form-floating"] if options[:floating]
-          wrapper_options = {
-            class: wrapper_classes,
-          }.compact
-
-          @template.content_tag(:div, **wrapper_options) do
+          @template.content_tag(:div, **wrapper_options(options)) do
             result = if options.delete(:floating)
-              super + "\n" + label(method, **label_options)
+              super + "\n" + label(method, **label_options(method, options))
             else
-              label(method, **label_options) + "\n" + super
+              label(method, **label_options(method, options)) + "\n" + super
             end
 
             result += @template.content_tag(:div, class: "invalid-feedback") do
@@ -79,6 +59,32 @@ module BootstrapForm
     bootstrap_alias :fields_for
 
     private
+
+    def label_options(method, options)
+      label_classes = ["form-label"]
+      label_classes += ["required"] if required_field?(options, method)
+      {
+        class: label_classes,
+        for: options[:id]
+      }.compact
+    end
+
+    def wrapper_options(options)
+      wrapper_classes = ["mb-3"]
+      wrapper_classes += ["form-floating"] if options[:floating]
+      {
+        class: wrapper_classes
+      }.compact
+    end
+
+    def control_options(classes, method, options)
+      classes += ["is-invalid"] if error?(method)
+      {
+        class: classes,
+        required: required_field?(options, method),
+        placeholder: options[:floating] && object.class.human_attribute_name(method)
+      }.compact
+    end
 
     def required_field?(options, method)
       if options[:skip_required]
