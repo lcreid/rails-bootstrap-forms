@@ -47,9 +47,7 @@ module BootstrapForm
               label(method, **label_options(method, options)) + "\n" + super
             end
 
-            result += @template.content_tag(:div, class: "invalid-feedback") do
-              get_error_messages(method)
-            end if error?(method)
+            result += generate_error_messages(method)
 
             result += generate_help(method, help_text)
 
@@ -152,25 +150,29 @@ module BootstrapForm
     end
 
     # rubocop:disable Metrics/AbcSize
-    def get_error_messages(name)
-      object.class.try(:reflections)&.each do |association_name, a|
-        next unless a.is_a?(ActiveRecord::Reflection::BelongsToReflection)
-        next unless a.foreign_key == name.to_s
+    def generate_error_messages(method)
+      return unless error?(method)
 
-        object.errors[association_name].each do |error|
-          object.errors.add(name, error)
+      @template.content_tag(:div, class: "invalid-feedback") do
+        object.class.try(:reflections)&.each do |association_name, a|
+          next unless a.is_a?(ActiveRecord::Reflection::BelongsToReflection)
+          next unless a.foreign_key == method.to_s
+
+          object.errors[association_name].each do |error|
+            object.errors.add(method, error)
+          end
         end
-      end
 
-      object.errors[name].join(", ")
+        object.errors[method].join(", ")
+      end
     end
     # rubocop:enable Metrics/AbcSize
 
-    def generate_help(name, help_text)
+    def generate_help(method, help_text)
       return if help_text == false
 
       help_klass ||= "form-text text-muted"
-      help_text ||= get_help_text_by_i18n_key(name)
+      help_text ||= get_help_text_by_i18n_key(method)
       help_tag ||= :small
 
       @template.content_tag(help_tag, help_text, class: help_klass) if help_text.present?
