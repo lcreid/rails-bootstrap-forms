@@ -32,17 +32,92 @@ module BootstrapForm
     #   end
     # end
 
-    (field_helpers - %i[label check_box radio_button fields_for fields hidden_field file_field]).each do |selector|
-      class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+    # also remove `file_field` because it doesn't get some of the wrappers -- I think.
+    (field_helpers - %i[label check_box radio_button fields_for fields hidden_field]).each do |selector|
+      class_eval <<-RUBY_EVAL, __FILE__,  __LINE__ + 1
         def #{selector}(method, options = {})  # def text_field(method, options = {})
-          @template.content_tag(:div, class: "mb-3") do
-            options[:class] = "form-control"
-            label(method, class: "form-label") + "\n" + super
+          label_classes = ["form-label"]
+          label_classes += ["required"] if required_field?(options, method)
+          label_options = {
+            class: label_classes,
+            for: options[:id],
+          }.compact
+
+          options.merge!(
+            {
+              class: "form-control",
+              required: required_field?(options, method),
+              placeholder: options[:floating] && object.class.human_attribute_name(method),
+            }.compact
+          )
+
+          wrapper_classes = ["mb-3"]
+          wrapper_classes += ["form-floating"] if options[:floating]
+          wrapper_options = {
+            class: wrapper_classes,
+          }.compact
+
+          @template.content_tag(:div, **wrapper_options) do
+            if options.delete(:floating)
+              super + "\n" + label(method, **label_options)
+            else
+              label(method, **label_options) + "\n" + super
+            end
           end
-        end                                    # end
+        end
       RUBY_EVAL
     end
 
     bootstrap_alias :fields_for
+
+    private
+
+    def required_field?(options, method)
+      if options[:skip_required]
+        warn "`:skip_required` is deprecated, use `:required: false` instead"
+        false
+      elsif options.key?(:required)
+        options[:required]
+      else
+        required_attribute?(object, method)
+      end
+    end
+
+    def required_attribute?(obj, attribute)
+      return false unless obj && attribute
+
+      target = obj.instance_of?(Class) ? obj : obj.class
+      return false unless target.respond_to? :validators_on
+
+      presence_validators?(target, obj, attribute) || required_association?(target, obj, attribute)
+    end
+
+    def required_association?(target, object, attribute)
+      target.try(:reflections)&.any? do |name, a|
+        next unless a.is_a?(ActiveRecord::Reflection::BelongsToReflection)
+        next unless a.foreign_key == attribute.to_s
+
+        presence_validators?(target, object, name)
+      end
+    end
+
+    def presence_validators?(target, object, attribute)
+      target.validators_on(attribute).select { |v| presence_validator?(v.class) }.any? do |validator|
+        if_option = validator.options[:if]
+        unless_opt = validator.options[:unless]
+        (!if_option || call_with_self(object, if_option)) && (!unless_opt || !call_with_self(object, unless_opt))
+      end
+    end
+
+    def call_with_self(object, proc)
+      proc = object.method(proc) if proc.is_a? Symbol
+      object.instance_exec(*[(object if proc.arity >= 1)].compact, &proc)
+    end
+
+    def presence_validator?(validator_class)
+      validator_class == ActiveModel::Validations::PresenceValidator ||
+        (defined?(ActiveRecord::Validations::PresenceValidator) &&
+          validator_class == ActiveRecord::Validations::PresenceValidator)
+    end
   end
 end
