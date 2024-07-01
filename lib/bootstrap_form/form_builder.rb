@@ -38,6 +38,7 @@ module BootstrapForm
         def #{selector}(method, options = {})  # def text_field(method, options = {})
           classes = ["#{selector == :range_field ? 'form-range' : 'form-control'}"]
           options.merge!(control_options(classes, method, options))
+          help_text = options.delete(:help)
 
           @template.content_tag(:div, **wrapper_options(options)) do
             result = if options.delete(:floating)
@@ -49,6 +50,8 @@ module BootstrapForm
             result += @template.content_tag(:div, class: "invalid-feedback") do
               get_error_messages(method)
             end if error?(method)
+
+            result += generate_help(method, help_text)
 
             result
           end
@@ -70,7 +73,8 @@ module BootstrapForm
     end
 
     def wrapper_options(options)
-      wrapper_classes = ["mb-3"]
+      wrapper = options.delete(:wrapper)
+      wrapper_classes = Array(options.delete(:wrapper_classes) || wrapper&.[](:classes) || "mb-3")
       wrapper_classes += ["form-floating"] if options[:floating]
       {
         class: wrapper_classes
@@ -161,5 +165,63 @@ module BootstrapForm
       object.errors[name].join(", ")
     end
     # rubocop:enable Metrics/AbcSize
+
+    def generate_help(name, help_text)
+      return if help_text == false
+
+      help_klass ||= "form-text text-muted"
+      help_text ||= get_help_text_by_i18n_key(name)
+      help_tag ||= :small
+
+      @template.content_tag(help_tag, help_text, class: help_klass) if help_text.present?
+    end
+
+    def get_help_text_by_i18n_key(name)
+      return unless object
+
+      partial_scope = if object_class.respond_to?(:model_name)
+                        object_class.model_name.name
+                      else
+                        object_class.name
+                      end
+
+      # First check for a subkey :html, as it is also accepted by i18n, and the
+      # simple check for name would return an hash instead of a string (both
+      # with .presence returning true!)
+      help_text = nil
+      ["#{name}.html", name, "#{name}_html"].each do |scope|
+        break if help_text
+
+        help_text = scoped_help_text(scope, partial_scope)
+      end
+      help_text
+    end
+
+    def object_class
+      if !object.class.is_a?(ActiveModel::Naming) &&
+         object.respond_to?(:klass) && object.klass.is_a?(ActiveModel::Naming)
+        object.klass
+      else
+        object.class
+      end
+    end
+
+    def scoped_help_text(name, partial_scope)
+      underscored_scope = "activerecord.help.#{partial_scope.underscore}"
+      downcased_scope = "activerecord.help.#{partial_scope.downcase}"
+
+      help_text = translated_help_text(name, underscored_scope).presence
+
+      help_text ||= if (text = translated_help_text(name, downcased_scope).presence)
+                      warn "I18n key '#{downcased_scope}.#{name}' is deprecated, use '#{underscored_scope}.#{name}' instead"
+                      text
+                    end
+
+      help_text
+    end
+
+    def translated_help_text(name, scope)
+      ActiveSupport::SafeBuffer.new I18n.t(name, scope: scope, default: "")
+    end
   end
 end
