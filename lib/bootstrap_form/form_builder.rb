@@ -25,26 +25,20 @@ module BootstrapForm
       super
     end
 
-    # def color_field(method, options = {})
-    #   @template.content_tag(:div, class: "mb-3") do
-    #     options[:class] = "form-control"
-    #     label(method, class: "form-label") + "\n" + super
-    #   end
-    # end
-
     # also remove `file_field` because it doesn't get some of the wrappers -- I think.
     (field_helpers - %i[label check_box radio_button fields_for fields hidden_field]).each do |selector|
-      class_eval <<-RUBY_EVAL, __FILE__,  __LINE__ + 1
-        def #{selector}(method, options = {})  # def text_field(method, options = {})
+      class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
+        def #{selector}(method, options={})  # def text_field(method, options = {})
           classes = ["#{selector == :range_field ? 'form-range' : 'form-control'}"]
           options.merge!(control_options(classes, method, options))
+          label_text = options.delete(:label)
           help_text = options.delete(:help)
 
-          @template.content_tag(:div, **wrapper_options(options)) do
+          @template.content_tag(:div, **wrapper_options("mb-3", options)) do
             result = if options.delete(:floating)
-              super + "\n" + label(method, **label_options(method, options))
+              super + "\n" + label(method, label_text, **label_options(["form-label"], method, options))
             else
-              label(method, **label_options(method, options)) + "\n" + super
+              label(method, label_text, **label_options(["form-label"], method, options)) + "\n" + super
             end
 
             result += generate_error_messages(method)
@@ -59,10 +53,34 @@ module BootstrapForm
 
     bootstrap_alias :fields_for
 
+    def check_box(method, options={}, checked_value="1", unchecked_value="0", &block)
+      show_error_message = !!options.delete(:error_message)
+      classes = ["form-check-input"]
+      options.merge!(control_options(classes, method, options))
+      label_text = options.delete(:label)
+      label_text = yield if block
+      help_text = options.delete(:help)
+
+      @template.content_tag(:div, **check_box_wrapper_options(%w[form-check mb-3], options)) do
+        label_classes = ["form-check-label"]
+        # Ugh. The order of operations affects where we delete `hide_label`. It affects the label and control classes.
+        label_classes += ["visually-hidden"] if options.delete(:hide_label) || options[:skip_label]
+        result = if options.delete(:skip_label)
+                   super
+                 else
+                   super + "\n" + label(method, label_text, **label_options(label_classes, method, options))
+                 end
+        result += generate_error_messages(method) if show_error_message
+        result += generate_help(method, help_text)
+        result
+      end
+    end
+    bootstrap_alias :check_box
+
     private
 
-    def label_options(method, options)
-      label_classes = ["form-label"]
+    def label_options(label_classes, method, options)
+      label_classes += Array(options.delete(:label_class)) if options[:label_class]
       label_classes += ["required"] if required_field?(options, method)
       {
         class: label_classes,
@@ -70,16 +88,32 @@ module BootstrapForm
       }.compact
     end
 
-    def wrapper_options(options)
+    def wrapper_options(wrapper_classes, options)
       wrapper = options.delete(:wrapper)
-      wrapper_classes = Array(options.delete(:wrapper_classes) || wrapper&.[](:classes) || "mb-3")
+      wrapper_classes = Array(options.delete(:wrapper_class) || wrapper&.[](:classes) || wrapper_classes)
       wrapper_classes += ["form-floating"] if options[:floating]
       {
         class: wrapper_classes
       }.compact
     end
 
+    def check_box_wrapper_options(wrapper_classes, options)
+      classes_to_add = Array(options.delete(:wrapper_class))
+      wrapper = options.delete(:wrapper)
+      classes_to_add += Array(wrapper[:classes]) if wrapper
+      # The next couple of lines are a tremendous hack just because comparing classes is order dependent,
+      # and the old implementation had this funny order for the classes.
+      wrapper_classes = normalize_classes(wrapper_classes)
+      wrapper_classes.insert(1, "form-check-inline") if options.delete(:inline)
+      wrapper_classes += classes_to_add
+      wrapper_classes += ["form-floating"] if options[:floating]
+      {
+        class: wrapper_classes.compact
+      }.compact
+    end
+
     def control_options(classes, method, options)
+      classes += ["position-static"] if options[:hide_label] || options[:skip_label]
       classes += ["is-invalid"] if error?(method)
       {
         class: classes,
@@ -224,6 +258,10 @@ module BootstrapForm
 
     def translated_help_text(name, scope)
       ActiveSupport::SafeBuffer.new I18n.t(name, scope: scope, default: "")
+    end
+
+    def normalize_classes(classes)
+      Array(classes).flat_map { |item| item.is_a?(Array) ? normalize_classes(item) : item.split }
     end
   end
 end
