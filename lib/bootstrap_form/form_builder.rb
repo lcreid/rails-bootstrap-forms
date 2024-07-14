@@ -22,15 +22,18 @@ module BootstrapForm
       @control_col = options[:control_col] || "col-sm-10"
       @label_errors = !!options[:label_errors]
       @inline_errors = options[:inline_errors] || !@label_errors
+      @layout = options[:layout]
+      add_default_form_attributes_and_form_inline(options)
       super
     end
+    attr_reader :layout
 
     # also remove `file_field` because it doesn't get some of the wrappers -- I think.
     (field_helpers - %i[label check_box radio_button fields_for fields hidden_field]).each do |selector|
       class_eval <<-RUBY_EVAL, __FILE__, __LINE__ + 1
         def #{selector}(method, options={})  # def text_field(method, options = {})
           classes = ["#{selector == :range_field ? 'form-range' : 'form-control'}"]
-          @bootstrap_form_options = Options.new(options)
+          @bootstrap_form_options = Options.new(self, options)
           options.merge!(control_options(classes, method, options))
           label_text = @bootstrap_form_options.label
           help_text =  @bootstrap_form_options.help
@@ -55,14 +58,14 @@ module BootstrapForm
     bootstrap_alias :fields_for
 
     def check_box(method, options={}, checked_value="1", unchecked_value="0", &block)
-      @bootstrap_form_options = Options.new(options)
+      @bootstrap_form_options = Options.new(self, options)
       classes = ["form-check-input"]
       options.merge!(control_options(classes, method, options))
       label_text = @bootstrap_form_options.label
       label_text = yield if block
       help_text =  @bootstrap_form_options.help
 
-      @template.content_tag(:div, **check_box_wrapper_options(%w[form-check mb-3], options)) do
+      result = @template.content_tag(:div, **check_box_wrapper_options(%w[form-check mb-3], options)) do
         label_classes = ["form-check-label"]
         # Ugh. The order of operations affects where we delete `hide_label`. It affects the label and control classes.
         label_classes += ["visually-hidden"] if @bootstrap_form_options.hide_label || @bootstrap_form_options.skip_label
@@ -75,10 +78,31 @@ module BootstrapForm
         result += generate_help(method, help_text)
         result
       end
+
+      if layout == :inline
+        result = @template.content_tag(:div, class: "col") do
+          result
+        end
+      end
+
+      result
     end
     bootstrap_alias :check_box
 
     private
+
+    def add_default_form_attributes_and_form_inline(options)
+      options[:html] ||= {}
+      options[:html].reverse_merge!(BootstrapForm.config.default_form_attributes)
+
+      return unless @layout == :inline
+
+      options[:html][:class] =
+        (
+          normalize_classes(options[:html][:class]) +
+          %w[row row-cols-auto g-3 align-items-center]
+        ).compact.uniq.join(" ")
+    end
 
     def label_options(label_classes, method, options)
       label_classes += Array(@bootstrap_form_options.label_class) if @bootstrap_form_options.label_class
@@ -114,6 +138,7 @@ module BootstrapForm
       # and the old implementation had this funny order for the classes.
       wrapper_classes = normalize_classes(wrapper_classes)
       wrapper_classes.insert(1, "form-check-inline") if @bootstrap_form_options.inline
+      wrapper_classes = %w[form-check form-check-inline] if layout == :inline # layout inline not the same as arg inline
       wrapper_classes += classes_to_add
       wrapper_classes += ["form-floating"] if @bootstrap_form_options.floating
       {
@@ -272,11 +297,11 @@ module BootstrapForm
     end
 
     def normalize_classes(classes)
-      Array(classes).flat_map { |item| item.is_a?(Array) ? normalize_classes(item) : item.split }
+      Array(classes).flat_map { |item| item.is_a?(Array) ? normalize_classes(item) : item.split(/\s+/) }
     end
 
     class Options
-      def initialize(options)
+      def initialize(form, options)
         @label = options.delete(:label)
         @help = options.delete(:help)
         @floating = options.delete(:floating)
