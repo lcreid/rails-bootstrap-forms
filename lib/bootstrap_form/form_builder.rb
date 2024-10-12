@@ -89,6 +89,21 @@ module BootstrapForm
     end
     bootstrap_alias :check_box
 
+    def collection_check_boxes(method, collection, value_method, text_method, options={}, html_options={}, &block)
+      @bootstrap_form_options = Options.new(self, options)
+      classes = ["form-check-input"]
+      options.merge!(control_options(classes, method, options))
+      label_text = @bootstrap_form_options.label
+      label_text = yield if block
+      help_text =  @bootstrap_form_options.help
+
+      super do |f|
+        debugger
+        check_box(method, options)
+      end
+    end
+    bootstrap_alias :collection_check_boxes
+
     private
 
     def add_default_form_attributes_and_form_inline(options)
