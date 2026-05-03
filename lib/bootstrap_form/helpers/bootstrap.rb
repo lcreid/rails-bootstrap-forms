@@ -76,8 +76,10 @@ module BootstrapForm
 
         input = attach_input(options, :prepend) + input + attach_input(options, :append)
         input << generate_error(name, id)
-        options.present? &&
-          input = tag.div(input, class: ["input-group", options[:input_group_class]].compact)
+        classes = ["input-group"]
+        classes << "has-validation" if error?(name)
+        classes << options[:input_group_class] if options[:input_group_class]
+        input = tag.div(input, class: classes) if options.present?
         input
       end
 

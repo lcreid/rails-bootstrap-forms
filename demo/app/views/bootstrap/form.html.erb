@@ -66,3 +66,12 @@
     <%= form.submit %>
   <% end %>
 <% end %>
+
+<h3>Field with Error in input-group</h3>
+
+<%= form_with_source do %>
+  <%= bootstrap_form_for @user_with_invalid_comment, namespace: "user-with-invalid-comment" do |form| %>
+    <%= form.text_field(:comments, prepend: "@") %>
+    <%= form.submit %>
+  <% end %>
+<% end %>

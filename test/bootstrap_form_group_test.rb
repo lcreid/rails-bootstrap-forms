@@ -195,7 +195,7 @@ class BootstrapFormGroupTest < ActionView::TestCase
       <form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post">
         <div class="mb-3">
           <label class="form-label required" for="user_email">Email</label>
-          <div class="input-group">
+          <div class="input-group has-validation">
             <span class="input-group-text">$</span>
             <input required="required" class="form-control is-invalid" id="user_email" aria-describedby="user_email_feedback" name="user[email]" type="text" />
             <span class="input-group-text">.00</span>

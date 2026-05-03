@@ -27,5 +27,7 @@ class BootstrapController < ApplicationController
     @user_with_error.errors.add(:misc)
     @user_with_error.errors.add(:preferences)
     @users = [@user]
+    @user_with_invalid_comment = User.new email: "steve.example.com"
+    @user_with_invalid_comment.errors.add(:comments)
   end
 end
